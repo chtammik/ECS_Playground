@@ -213,9 +213,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4e3f82dd636fb4c84cb022d81348db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1240866273426520, guid: 20c3d43ac255b4e449a681dcfcecbeb1, type: 2}
-  count: 1000
-  speed: 10
+  ECSPrefab: {fileID: 1240866273426520, guid: 20c3d43ac255b4e449a681dcfcecbeb1, type: 2}
+  UsualPrefab: {fileID: 1666117968988850, guid: 18d8c900c31a70b40b08dd2e50bb2424,
+    type: 2}
+  count: 10000
+  speed: 1
+  pureECS: 1
 --- !u!4 &931152919
 Transform:
   m_ObjectHideFlags: 0
