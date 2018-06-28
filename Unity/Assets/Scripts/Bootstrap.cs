@@ -14,11 +14,13 @@ public class Bootstrap : MonoBehaviour {
 
     public bool pureECS = true;
 
-    void Awake () {
+    void Awake ()
+    {
+        // ugly singleton so we can read the movement speed at runtime from the movement system
         Instance = this;
-        var entityManager = World.Active.GetExistingManager<EntityManager>();
-        // avoid using GameObjects alltogether
-        if (pureECS)
+        // use default world and entity manager so we can use existing systems
+        EntityManager entityManager = World.Active.GetExistingManager<EntityManager>();
+        if (pureECS) // avoid using GameObjects alltogether
         {
             // setup archetype
             EntityArchetype archetype = entityManager.CreateArchetype(
@@ -52,7 +54,5 @@ public class Bootstrap : MonoBehaviour {
                 entityManager.AddComponentData(entity, new Direction(Random.insideUnitSphere));
             }
         }
-
-        
     }
 }
