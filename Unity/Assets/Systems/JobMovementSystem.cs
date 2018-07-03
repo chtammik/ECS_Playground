@@ -7,19 +7,20 @@ using Unity.Burst;
 
 namespace SimpleExample.ECS
 {	
-	public class JobMovementSystem : JobComponentSystem
+	public class JobMoveInDirectionSystem : JobComponentSystem
 	{
-        // TODO: research what this attribute does?
+        // cuts the processing time in half in this instance 
+        // (when burst safety checks are disabled also (editor only))
 		[BurstCompile]
         // this job type uses dependency injection to "magically" get the components of those entities
         // which all match the defined signature (example "<Position, Direction>")
-        struct MovementJob : IJobProcessComponentData<Position, Direction>
+        struct MovePositionJob : IJobProcessComponentData<Position, MoveInDirection>
 		{
             // the readonly flag helps the compiler optimize
             [ReadOnly] public float deltaTime;
             [ReadOnly] public float speed;
             // we only write to the position component
-            public void Execute(ref Position position, [ReadOnly]ref Direction dir)
+            public void Execute(ref Position position, [ReadOnly]ref MoveInDirection dir)
 			{
 				position.Value = position.Value + (dir.Value * deltaTime * speed);
 			}
@@ -28,7 +29,7 @@ namespace SimpleExample.ECS
 		protected override JobHandle OnUpdate(JobHandle inputDeps)
 		{
             // create a new job
-			var job = new MovementJob()
+			var job = new MovePositionJob()
             {
                 deltaTime = Time.deltaTime,
                 speed = Bootstrap.Instance.speed
@@ -36,7 +37,7 @@ namespace SimpleExample.ECS
             // scheduling the job pushes it to the job system to deal with
             // the jobHandle we return can be used to chain data dependensies
             // or force the job to complete
-			return job.Schedule(this, 64, inputDeps); 
+			return job.Schedule(this, 128, inputDeps); 
 		} 
 	}
 }
