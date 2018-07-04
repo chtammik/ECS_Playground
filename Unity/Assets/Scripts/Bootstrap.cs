@@ -3,10 +3,8 @@ using Unity.Entities;
 using Unity.Rendering;
 using Unity.Transforms;
 using Unity.Mathematics;
-using Unity.Collections;
 
-public class Bootstrap : MonoBehaviour
-{
+public class Bootstrap : MonoBehaviour {
     public static Bootstrap Instance { get; private set; }
     public GameObject ECSPrefab;
     public GameObject UsualPrefab;
@@ -16,9 +14,7 @@ public class Bootstrap : MonoBehaviour
 
     public bool pureECS = true;
 
-    NativeArray<Entity> instances;
-
-    void Awake()
+    void Awake ()
     {
         // ugly singleton so we can read the movement speed at runtime from the movement system
         Instance = this;
@@ -29,12 +25,7 @@ public class Bootstrap : MonoBehaviour
             // setup archetype
             EntityArchetype archetype = entityManager.CreateArchetype(
                 ComponentType.Create<Position>(),
-<<<<<<< HEAD
-                ComponentType.Create<Direction>(),
-                ComponentType.Create<EmptyComponent>(),
-=======
                 ComponentType.Create<MoveInDirection>(),
->>>>>>> 02f54775fff28a7d2fd76e6b4de2091799cb9621
                 ComponentType.Create<TransformMatrix>());
             // get instance renderer
             MeshInstanceRenderer meshInstanceRenderer = new MeshInstanceRenderer();
@@ -49,12 +40,6 @@ public class Bootstrap : MonoBehaviour
                 // add shared instance renderer
                 entityManager.AddSharedComponentData(entity, meshInstanceRenderer);
             }
-
-            //Entity entity2 = entityManager.CreateEntity(archetype);
-            //entityManager.SetComponentData(entity2, new Direction(Random.insideUnitSphere));
-            //entityManager.AddSharedComponentData(entity2, meshInstanceRenderer);
-            //instances = new NativeArray<Entity>(count, Allocator.Temp);
-            //entityManager.Instantiate(entity2, instances);
         }
         else // use GameObjects
         {
@@ -70,8 +55,4 @@ public class Bootstrap : MonoBehaviour
             }
         }
     }
-
 }
-
-///<summary>an empty component only used to make a signature unique</summary>
-public struct EmptyComponent : IComponentData { }
