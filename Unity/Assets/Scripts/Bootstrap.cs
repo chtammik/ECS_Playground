@@ -26,7 +26,8 @@ public class Bootstrap : MonoBehaviour {
             EntityArchetype archetype = entityManager.CreateArchetype(
                 ComponentType.Create<Position>(),
                 ComponentType.Create<MoveInDirection>(),
-                ComponentType.Create<TransformMatrix>());
+                ComponentType.Create<TransformMatrix>(),
+                ComponentType.Create<EmptyComponent>());
             // get instance renderer
             MeshInstanceRenderer meshInstanceRenderer = new MeshInstanceRenderer();
             var proto = Instantiate(ECSPrefab);
@@ -56,3 +57,6 @@ public class Bootstrap : MonoBehaviour {
         }
     }
 }
+
+///<summary>an empty component only used to make a signature unique</summary>
+public struct EmptyComponent : IComponentData { }

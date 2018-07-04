@@ -14,13 +14,13 @@ namespace SimpleExample.ECS
 		[BurstCompile]
         // this job type uses dependency injection to "magically" get the components of those entities
         // which all match the defined signature (example "<Position, Direction>")
-        struct MovePositionJob : IJobProcessComponentData<Position, MoveInDirection>
+        struct MovePositionJob : IJobProcessComponentData<Position, MoveInDirection, EmptyComponent>
 		{
             // the readonly flag helps the compiler optimize
             [ReadOnly] public float deltaTime;
             [ReadOnly] public float speed;
             // we only write to the position component
-            public void Execute(ref Position position, [ReadOnly]ref MoveInDirection dir)
+            public void Execute(ref Position position, [ReadOnly]ref MoveInDirection dir, [ReadOnly]ref EmptyComponent empty)
 			{
 				position.Value = position.Value + (dir.Value * deltaTime * speed);
 			}
