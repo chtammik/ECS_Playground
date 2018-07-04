@@ -218,7 +218,7 @@ MonoBehaviour:
     type: 2}
   count: 10000
   speed: 1
-  pureECS: 1
+  pureECS: 0
 --- !u!4 &931152919
 Transform:
   m_ObjectHideFlags: 0

@@ -4,11 +4,11 @@ using Unity.Mathematics;
 /// <summary>
 /// This component defines the direction and magnitude in which a position should be moving
 /// </summary>
-public struct Direction : IComponentData
+public struct MoveInDirection : IComponentData
 {
     public float3 Value;
 
-    public Direction(UnityEngine.Vector3 dir)
+    public MoveInDirection(UnityEngine.Vector3 dir)
     {
         Value = dir;
     }

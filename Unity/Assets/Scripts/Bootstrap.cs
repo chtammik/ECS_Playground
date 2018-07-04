@@ -29,8 +29,12 @@ public class Bootstrap : MonoBehaviour
             // setup archetype
             EntityArchetype archetype = entityManager.CreateArchetype(
                 ComponentType.Create<Position>(),
+<<<<<<< HEAD
                 ComponentType.Create<Direction>(),
                 ComponentType.Create<EmptyComponent>(),
+=======
+                ComponentType.Create<MoveInDirection>(),
+>>>>>>> 02f54775fff28a7d2fd76e6b4de2091799cb9621
                 ComponentType.Create<TransformMatrix>());
             // get instance renderer
             MeshInstanceRenderer meshInstanceRenderer = new MeshInstanceRenderer();
@@ -41,7 +45,7 @@ public class Bootstrap : MonoBehaviour
             for (int j = 0; j < count; j++)
             {
                 Entity entity = entityManager.CreateEntity(archetype);
-                entityManager.SetComponentData(entity, new Direction(Random.insideUnitSphere));
+                entityManager.SetComponentData(entity, new MoveInDirection(Random.insideUnitSphere));
                 // add shared instance renderer
                 entityManager.AddSharedComponentData(entity, meshInstanceRenderer);
             }
@@ -62,7 +66,7 @@ public class Bootstrap : MonoBehaviour
                 Entity entity = GameObjectEntity.AddToEntityManager(entityManager, go);
                 // setup components for moving
                 entityManager.AddComponentData(entity, new Position());
-                entityManager.AddComponentData(entity, new Direction(Random.insideUnitSphere));
+                entityManager.AddComponentData(entity, new MoveInDirection(Random.insideUnitSphere));
             }
         }
     }
