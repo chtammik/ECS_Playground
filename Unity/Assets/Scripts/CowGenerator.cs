@@ -20,7 +20,7 @@ public class CowGenerator : MonoBehaviour
         entityManager = World.Active.GetExistingManager<EntityManager>();
         EntityArchetype CowArchetype = entityManager.CreateArchetype(
             ComponentType.Create<Position>(),
-            ComponentType.Create<Direction>(),
+            ComponentType.Create<MoveInDirection>(),
             ComponentType.Create<AudioComponent>());
 
         pool = new AudioSourcePool();
@@ -30,7 +30,7 @@ public class CowGenerator : MonoBehaviour
         {
             Entity cow = entityManager.CreateEntity(CowArchetype);
             entityManager.SetComponentData<Position>(cow, new Position());
-            entityManager.SetComponentData<Direction>(cow, new Direction(UnityEngine.Random.insideUnitSphere));
+            entityManager.SetComponentData<MoveInDirection>(cow, new MoveInDirection(UnityEngine.Random.insideUnitSphere));
             entityManager.SetComponentData<AudioComponent>(cow, NewAudioComponent());
             Debug.Log(entityManager.GetComponentData<AudioComponent>(cow).AudioSourceID + " " + entityManager.GetComponentData<AudioComponent>(cow).Virtual);
         }
@@ -110,12 +110,12 @@ public class AudioSourcePool
 public class JobCowBehaviourSystem : JobComponentSystem
 {
     [BurstCompile]
-    struct CowJob : IJobProcessComponentData<Position, Direction, AudioComponent>
+    struct CowJob : IJobProcessComponentData<Position, MoveInDirection, AudioComponent>
     {
         [ReadOnly] public float deltaTime;
         [ReadOnly] public float speed;
 
-        public void Execute(ref Position position, [ReadOnly]ref Direction dir, [ReadOnly]ref AudioComponent ac)
+        public void Execute(ref Position position, [ReadOnly]ref MoveInDirection dir, [ReadOnly]ref AudioComponent ac)
         {
             position.Value = position.Value + (dir.Value * deltaTime * speed);
         }
