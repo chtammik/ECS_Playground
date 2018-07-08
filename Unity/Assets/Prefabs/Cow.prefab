@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4281432069116350}
   - component: {fileID: 114444425141601064}
-  - component: {fileID: 114933540801433960}
+  - component: {fileID: 114985580734030122}
   m_Layer: 0
   m_Name: Cow
   m_TagString: Untagged
@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bf10cdea1344482e91a4f2b58506b77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114933540801433960
+--- !u!114 &114985580734030122
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
