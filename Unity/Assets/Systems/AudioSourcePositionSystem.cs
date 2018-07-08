@@ -3,6 +3,7 @@ using System.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Collections;
 
 public class AudioSourcePositionSystem : ComponentSystem
 {
@@ -10,7 +11,7 @@ public class AudioSourcePositionSystem : ComponentSystem
     {
         public readonly int Length;
         public ComponentArray<Transform> Transforms;
-        public ComponentArray<AudioSource> AudioSources;
+        [ReadOnly] public ComponentArray<AudioSource> AudioSources;
     }
 
     [Inject] ASGroup asGroup;
@@ -18,8 +19,8 @@ public class AudioSourcePositionSystem : ComponentSystem
     struct ASIDGroup
     {
         public readonly int Length;
-        public ComponentDataArray<Position> Positions;
-        public ComponentDataArray<AudioSourceID> ASIDComponent;
+        [ReadOnly] public ComponentDataArray<Position> Positions;
+        [ReadOnly] public ComponentDataArray<AudioSourceID> ASIDComponent;
     }
 
     [Inject] ASIDGroup asidGroup;

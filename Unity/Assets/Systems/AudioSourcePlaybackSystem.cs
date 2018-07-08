@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Unity.Entities;
+using Unity.Collections;
 
 public class AudioSourcePlaybackSystem : ComponentSystem
 {
@@ -8,21 +9,21 @@ public class AudioSourcePlaybackSystem : ComponentSystem
     {
         public readonly int Length;
         public ComponentDataArray<AudioSourceID> asIDs;
-        public ComponentDataArray<AudioClipID> acIDs;
+        [ReadOnly] public ComponentDataArray<AudioClipID> acIDs;
     }
 
     [Inject] CarrierGroup carrierGroup;
 
     struct PoolGroup
     {
-        public ComponentArray<AudioSourcePool> Pool;
+        [ReadOnly] public ComponentArray<AudioSourcePool> Pool;
     }
 
     [Inject] PoolGroup poolGroup;
 
     struct ManagerGroup
     {
-        public ComponentArray<AudioManager> Manager;
+        [ReadOnly] public ComponentArray<AudioManager> Manager;
     }
 
     [Inject] ManagerGroup managerGroup;

@@ -19,7 +19,7 @@ public class JobMooSoundSystem : JobComponentSystem
             if (moo.MooStatus == MooType.StartMooing)
             {
                 CommandBuffer.AddComponent<AudioSourceID>(moo.EntityID, new AudioSourceID(moo.EntityID, -1, PriorityType.Medium, PlayType.NeedSource));
-                CommandBuffer.AddComponent<AudioClipID>(moo.EntityID, new AudioClipID(moo.EntityID.Index - 1));
+                CommandBuffer.AddComponent<AudioClipID>(moo.EntityID, new AudioClipID(moo.EntityID.Index - 2));
                 moo.MooStatus = MooType.Mooing;
             }               
         }
