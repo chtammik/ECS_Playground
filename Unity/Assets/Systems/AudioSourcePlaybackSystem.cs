@@ -63,12 +63,19 @@ public class AudioSourcePlaybackSystem : ComponentSystem
             {
                 AudioSource audioSource = poolGroup.Pool[0].GetAudioSource(carrierGroup.ASIDs[i].ASID).GetComponent<AudioSource>();
                 audioSource.clip = managerGroup.Manager[0].ClipList.clips[carrierGroup.ACIDs[i].ACID];
-                double LastTimeStarted = carrierGroup.AudioProperties[i].StartTime;
-                if (LastTimeStarted != -1)
+                double lastTimeStarted = carrierGroup.AudioProperties[i].StartTime;
+                double currentTime = AudioSettings.dspTime;
+                int outputSampleRate = AudioSettings.outputSampleRate;
+                int clipSampeRate = audioSource.clip.frequency;
+                int clipTotalSamples = audioSource.clip.samples;
+
+                if (lastTimeStarted != -1)
                 {
-                    int samplesSinceLastTimeStarted = (int)((AudioSettings.dspTime - LastTimeStarted) * AudioSettings.outputSampleRate);
-                    //audioSource.timeSamples = samplesSinceLastTimeStarted % (int)(audioSource.clip.samples * ((double)AudioSettings.outputSampleRate / audioSource.clip.frequency));
-                    audioSource.timeSamples = samplesSinceLastTimeStarted % audioSource.clip.samples; //only works when sample rate matches
+                    int samplesSinceLastTimeStarted = (int)((currentTime - lastTimeStarted) * outputSampleRate);
+                    if (clipSampeRate == outputSampleRate)
+                        audioSource.timeSamples = samplesSinceLastTimeStarted % audioSource.clip.samples; //only works when sample rate matches
+                    else
+                        audioSource.timeSamples = (int)((samplesSinceLastTimeStarted % (clipTotalSamples * ((double)outputSampleRate / clipSampeRate))) * ((double)clipSampeRate / outputSampleRate));
                 }
                 else
                     carrierGroup.AudioProperties[i] = new AudioProperty(AudioSettings.dspTime);
