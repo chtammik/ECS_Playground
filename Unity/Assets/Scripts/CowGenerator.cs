@@ -66,7 +66,13 @@ public class CowGenerator : MonoBehaviour
         GUI.Box(new Rect(325, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[1]].ToString());
         GUI.Box(new Rect((Screen.width / 2) - 25, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[2]].ToString());
         GUI.Box(new Rect(Screen.width - 350, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[3]].ToString());
-        GUI.Box(new Rect(Screen.width - 125, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[4]].ToString());       
+        GUI.Box(new Rect(Screen.width - 125, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[4]].ToString());
+
+        GUI.Box(new Rect(100, 50, 100, 30), "Press 1");
+        GUI.Box(new Rect(325, 50, 100, 30), "Press 2");
+        GUI.Box(new Rect((Screen.width / 2) - 25, 50, 100, 30), "Press 3");
+        GUI.Box(new Rect(Screen.width - 350, 50, 100, 30), "Press 4");
+        GUI.Box(new Rect(Screen.width - 125, 50, 100, 30), "Press 5");
     }
 
 }
