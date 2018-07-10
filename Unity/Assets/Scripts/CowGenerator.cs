@@ -60,6 +60,15 @@ public class CowGenerator : MonoBehaviour
         }
     }
 
+    void OnGUI()
+    {
+        GUI.Box(new Rect(100, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[0]].ToString());
+        GUI.Box(new Rect(325, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[1]].ToString());
+        GUI.Box(new Rect((Screen.width / 2) - 25, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[2]].ToString());
+        GUI.Box(new Rect(Screen.width - 350, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[3]].ToString());
+        GUI.Box(new Rect(Screen.width - 125, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[4]].ToString());       
+    }
+
 }
 
 public struct Moo : IComponentData

@@ -48,13 +48,14 @@ public class AudioSourcePlaybackSystem : ComponentSystem
             if (stopGroup.ASIDs[i].ASID != -1)
             {
                 AudioSource audioSource = poolGroup.Pool[0].GetAudioSource(stopGroup.ASIDs[i].ASID).GetComponent<AudioSource>();
-                audioSource.Stop();
+                audioSource.Stop();               
                 poolGroup.Pool[0].ReturnIDBack(stopGroup.ASIDs[i].ASID);
             }
             Entity entity = stopGroup.Entities[i];
             PostUpdateCommands.RemoveComponent<AudioSourceID>(entity);
             PostUpdateCommands.RemoveComponent<AudioClipID>(entity);
             PostUpdateCommands.RemoveComponent<StopSoundRequest>(entity);
+            AudioInfoGUISystem.ASIDPlayStatus[stopGroup.ASIDs[i].EntityID.Index] = PlayType.Stop;
         }
 
         for (int i = 0; i < carrierGroup.Length; i++)
@@ -73,7 +74,7 @@ public class AudioSourcePlaybackSystem : ComponentSystem
                 {
                     int samplesSinceLastTimeStarted = (int)((currentTime - lastTimeStarted) * outputSampleRate);
                     if (clipSampeRate == outputSampleRate)
-                        audioSource.timeSamples = samplesSinceLastTimeStarted % audioSource.clip.samples; //only works when sample rate matches
+                        audioSource.timeSamples = samplesSinceLastTimeStarted % clipTotalSamples; //only works when sample rate matches
                     else
                         audioSource.timeSamples = (int)((samplesSinceLastTimeStarted % (clipTotalSamples * ((double)outputSampleRate / clipSampeRate))) * ((double)clipSampeRate / outputSampleRate));
                 }
