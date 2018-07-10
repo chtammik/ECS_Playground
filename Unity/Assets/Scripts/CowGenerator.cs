@@ -3,12 +3,15 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Rendering;
+using System.Collections.Generic;
+using System;
 
 public class CowGenerator : MonoBehaviour
 {
     public int Count = 5;
     public GameObject CowPrefab;
     EntityManager entityManager;
+    static List<int> CowEntityIDs;
 
     void Awake()
     {
@@ -17,11 +20,13 @@ public class CowGenerator : MonoBehaviour
             ComponentType.Create<Position>(),
             ComponentType.Create<Moo>(),
             ComponentType.Create<TransformMatrix>(),
-            ComponentType.Create<Coloring>());
+            ComponentType.Create<AudioProperty>());
         MeshInstanceRenderer meshInstanceRenderer = new MeshInstanceRenderer();
         var cowPrefab = Instantiate(CowPrefab);
         meshInstanceRenderer = cowPrefab.GetComponent<MeshInstanceRendererComponent>().Value;
         Destroy(cowPrefab);
+
+        CowEntityIDs = new List<int>(Count);
 
         for (int i = 0; i < Count; i++)
         {
@@ -29,7 +34,29 @@ public class CowGenerator : MonoBehaviour
             Entity cow = entityManager.CreateEntity(CowArchetype);
             entityManager.SetComponentData<Position>(cow, new Position(pos));
             entityManager.SetComponentData<Moo>(cow, new Moo(MooType.StartMooing, cow));
+            entityManager.SetComponentData<AudioProperty>(cow, new AudioProperty(-1));
             entityManager.AddSharedComponentData<MeshInstanceRenderer>(cow, meshInstanceRenderer);
+            CowEntityIDs.Add(cow.Index);
+        }
+    }
+
+    public static KeyCode CowKeyCode(int entityIndex)
+    {
+        int index = CowEntityIDs.IndexOf(entityIndex);
+        switch (index)
+        {
+            case 0:
+                return KeyCode.Alpha1;
+            case 1:
+                return KeyCode.Alpha2;
+            case 2:
+                return KeyCode.Alpha3;
+            case 3:
+                return KeyCode.Alpha4;
+            case 4:
+                return KeyCode.Alpha5;
+            default:
+                throw new Exception("Entity index invalid or not found in CowEntityIDs");
         }
     }
 
@@ -45,7 +72,7 @@ public struct Moo : IComponentData
         EntityID = entity;
     }
 }
-public enum MooType { StartMooing, Mooing, Quiet }
+public enum MooType { StartMooing, Mooing, StopMooing, Quiet }
 
 public struct Coloring : IComponentData
 {

@@ -34,4 +34,15 @@ public struct AudioClipID : IComponentData
     }
 }
 
+public struct StopSoundRequest : IComponentData { }
+
+public struct AudioProperty: IComponentData
+{
+    public double StartTime;
+
+    public AudioProperty(double startTime)
+    {
+        StartTime = startTime;
+    }
+}
 

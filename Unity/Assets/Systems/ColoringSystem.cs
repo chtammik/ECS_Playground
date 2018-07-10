@@ -22,7 +22,7 @@ public class ColoringSystem : ComponentSystem
     {
         for (int i = 0; i < group.Length; i++)
         {
-            group.renderer[i].material.color = group.Colorings[i].RequestColor;
+            //group.renderer[i].material.color = group.Colorings[i].RequestColor;
             PostUpdateCommands.RemoveComponent<Coloring>(group.entityArray[i]);
         }
         

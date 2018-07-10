@@ -18,6 +18,7 @@ public class AudioPoolSystem : ComponentSystem
     {
         public readonly int Length;
         public ComponentDataArray<AudioSourceID> asID;
+        public ComponentDataArray<AudioProperty> AudioProperties;
     }
 
     [Inject] ASIDGroup asidGroup;
@@ -26,11 +27,13 @@ public class AudioPoolSystem : ComponentSystem
     {
         for (int i = 0; i < asidGroup.Length; i++)
         {
-            if(asidGroup.asID[i].PlayStatus == PlayType.NeedSource)
+            if (asidGroup.asID[i].PlayStatus == PlayType.NeedSource)
             {
                 int newID = poolGroup.Pool[0].GetNewID();
-                if(newID != -1)
-                    asidGroup.asID[i]= new AudioSourceID(asidGroup.asID[i].EntityID, newID, asidGroup.asID[i].Priority, PlayType.ReadyToPlay);
+                if (newID != -1)
+                    asidGroup.asID[i] = new AudioSourceID(asidGroup.asID[i].EntityID, newID, asidGroup.asID[i].Priority, PlayType.ReadyToPlay);
+                if (asidGroup.AudioProperties[i].StartTime == -1)
+                    asidGroup.AudioProperties[i] = new AudioProperty(AudioSettings.dspTime);
             }
         }
     }

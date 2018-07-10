@@ -8,8 +8,10 @@ public class AudioSourcePlaybackSystem : ComponentSystem
     struct CarrierGroup
     {
         public readonly int Length;
-        public ComponentDataArray<AudioSourceID> asIDs;
-        [ReadOnly] public ComponentDataArray<AudioClipID> acIDs;
+        public EntityArray Entities;
+        public ComponentDataArray<AudioSourceID> ASIDs;
+        [ReadOnly] public ComponentDataArray<AudioClipID> ACIDs;
+        public ComponentDataArray<AudioProperty> AudioProperties;
     }
 
     [Inject] CarrierGroup carrierGroup;
@@ -28,16 +30,50 @@ public class AudioSourcePlaybackSystem : ComponentSystem
 
     [Inject] ManagerGroup managerGroup;
 
+    struct StopGroup
+    {
+        public readonly int Length;
+        public EntityArray Entities;
+        public ComponentDataArray<AudioSourceID> ASIDs;
+        public ComponentDataArray<AudioClipID> ACIDs;
+        public ComponentDataArray<StopSoundRequest> StopRequests;
+    }
+
+    [Inject] StopGroup stopGroup;
+
     protected override void OnUpdate()
     {
+        for (int i = 0; i < stopGroup.Length; i++)
+        {
+            if (stopGroup.ASIDs[i].ASID != -1)
+            {
+                AudioSource audioSource = poolGroup.Pool[0].GetAudioSource(stopGroup.ASIDs[i].ASID).GetComponent<AudioSource>();
+                audioSource.Stop();
+                poolGroup.Pool[0].ReturnIDBack(stopGroup.ASIDs[i].ASID);
+            }
+            Entity entity = stopGroup.Entities[i];
+            PostUpdateCommands.RemoveComponent<AudioSourceID>(entity);
+            PostUpdateCommands.RemoveComponent<AudioClipID>(entity);
+            PostUpdateCommands.RemoveComponent<StopSoundRequest>(entity);
+        }
+
         for (int i = 0; i < carrierGroup.Length; i++)
         {
-            if (carrierGroup.asIDs[i].PlayStatus == PlayType.ReadyToPlay)
+            if (carrierGroup.ASIDs[i].PlayStatus == PlayType.ReadyToPlay)
             {
-                AudioSource audioSource = poolGroup.Pool[0].GetAudioSource(carrierGroup.asIDs[i].ASID).GetComponent<AudioSource>();
-                audioSource.clip = managerGroup.Manager[0].ClipList.clips[carrierGroup.acIDs[i].ACID];
+                AudioSource audioSource = poolGroup.Pool[0].GetAudioSource(carrierGroup.ASIDs[i].ASID).GetComponent<AudioSource>();
+                audioSource.clip = managerGroup.Manager[0].ClipList.clips[carrierGroup.ACIDs[i].ACID];
+                double LastTimeStarted = carrierGroup.AudioProperties[i].StartTime;
+                if (LastTimeStarted != -1)
+                {
+                    int samplesSinceLastTimeStarted = (int)((AudioSettings.dspTime - LastTimeStarted) * AudioSettings.outputSampleRate);
+                    //audioSource.timeSamples = samplesSinceLastTimeStarted % (int)(audioSource.clip.samples * ((double)AudioSettings.outputSampleRate / audioSource.clip.frequency));
+                    audioSource.timeSamples = samplesSinceLastTimeStarted % audioSource.clip.samples; //only works when sample rate matches
+                }
+                else
+                    carrierGroup.AudioProperties[i] = new AudioProperty(AudioSettings.dspTime);
                 audioSource.Play();
-                carrierGroup.asIDs[i] = new AudioSourceID(carrierGroup.asIDs[i].EntityID, carrierGroup.asIDs[i].ASID, carrierGroup.asIDs[i].Priority, PlayType.Play);
+                carrierGroup.ASIDs[i] = new AudioSourceID(carrierGroup.Entities[i], carrierGroup.ASIDs[i].ASID, carrierGroup.ASIDs[i].Priority, PlayType.Play);
                 //PostUpdateCommands.AddComponent<Coloring>(carrierGroup.asIDs[i].EntityID, new Coloring(Color.red));
             }
         }

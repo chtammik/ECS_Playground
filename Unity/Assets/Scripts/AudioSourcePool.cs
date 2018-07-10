@@ -39,6 +39,7 @@ public class AudioSourcePool : MonoBehaviour
         for (int i = 0; i < pool.Length; i++)
         {
             pool[i].GetComponent<AudioSource>().loop = true;
+            pool[i].GetComponent<AudioSource>().playOnAwake = false;
         }
     }
 
@@ -47,11 +48,16 @@ public class AudioSourcePool : MonoBehaviour
         if (PoolDictionary.ContainsKey(id))
             return PoolDictionary[id];
         else
-            throw new Exception("No AudioSource Found, ID invalid");
+        {
+            Debug.Log("No AudioSource Found, ID invalid");
+            return null;
+        }
+            
     }
 
     public int GetNewID()
     {
+        //Debug.Log(IDs.Count);
         if (IDs.Count == 0)
             return -1;
         else

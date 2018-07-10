@@ -1,17 +1,15 @@
 {
   "dependencies": {
-    "com.unity.analytics": "exclude",
     "com.unity.ads": "exclude",
+    "com.unity.analytics": "exclude",
     "com.unity.standardevents": "exclude",
     "com.unity.purchasing": "exclude",
-    "com.unity.incrementalcompiler": "0.0.42-preview.12",
-    "com.unity.entities": "0.0.12-preview.8",
-    "com.unity.package-manager-ui": "1.9.3"
+    "com.unity.burst": "0.2.4-preview.20",
+    "com.unity.entities": "0.0.12-preview.8"
   },
   "testables": [
     "com.unity.collections",
     "com.unity.entities",
     "com.unity.jobs"
-  ],
-  "registry": "https://staging-packages.unity.com"
+  ]
 }
