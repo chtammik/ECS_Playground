@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using Unity.Entities;
-using Unity.Mathematics;
+﻿using Unity.Entities;
 
 public enum PlayType { NeedSource, ReadyToPlay, Play, Mute, Stop }
 public enum VoiceStatusType { Real, Virtual, Zero }

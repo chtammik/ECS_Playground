@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using Unity.Entities;
+﻿using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Entities;
 
 public class AudioInfoGUISystem : ComponentSystem
 {

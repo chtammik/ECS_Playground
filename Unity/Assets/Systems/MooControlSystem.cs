@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Collections;
+using UnityEngine;
 
 public class MooControlSystem : ComponentSystem
 {

@@ -1,9 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Burst;
 using Unity.Jobs;
-using Unity.Collections;
 
 public class MooBarrier : BarrierSystem { }
 

@@ -1,10 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Entities;
-using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Rendering;
-using System.Collections.Generic;
-using System;
+using Unity.Transforms;
+using UnityEngine;
 
 public class CowGenerator : MonoBehaviour
 {

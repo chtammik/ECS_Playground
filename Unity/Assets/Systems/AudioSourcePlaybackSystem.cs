@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Collections;
+using UnityEngine;
 
 public class AudioSourcePlaybackSystem : ComponentSystem
 {
@@ -18,17 +17,6 @@ public class AudioSourcePlaybackSystem : ComponentSystem
     }
 
     [Inject] ManagerGroup managerGroup;
-
-    struct CarrierGroup
-    {
-        public readonly int Length;
-        [ReadOnly] public EntityArray Entities;
-        public ComponentDataArray<AudioSourceID> ASIDs;
-        [ReadOnly] public ComponentDataArray<AudioClipID> ACIDs;
-        public ComponentDataArray<AudioProperty> AudioProperties;
-    }
-
-    [Inject] CarrierGroup carrierGroup;
 
     struct StopGroup
     {
@@ -52,6 +40,17 @@ public class AudioSourcePlaybackSystem : ComponentSystem
     }
 
     [Inject] MuteGroup muteGroup;
+
+    struct PlayGroup
+    {
+        public readonly int Length;
+        [ReadOnly] public EntityArray Entities;
+        public ComponentDataArray<AudioSourceID> ASIDs;
+        [ReadOnly] public ComponentDataArray<AudioClipID> ACIDs;
+        public ComponentDataArray<AudioProperty> AudioProperties;
+    }
+
+    [Inject] PlayGroup playGroup;
 
     protected override void OnUpdate()
     {
@@ -87,17 +86,18 @@ public class AudioSourcePlaybackSystem : ComponentSystem
             PostUpdateCommands.RemoveComponent<MuteSoundRequest>(entity);
         }
 
-        for (int i = 0; i < carrierGroup.Length; i++)
+        for (int i = 0; i < playGroup.Length; i++)
         {
-            if (carrierGroup.ASIDs[i].PlayStatus == PlayType.NeedSource && carrierGroup.AudioProperties[i].StartTime == -1)
-                carrierGroup.AudioProperties[i] = new AudioProperty(AudioSettings.dspTime);
+            AudioSourceID asID = playGroup.ASIDs[i];
+            if (asID.PlayStatus == PlayType.NeedSource && playGroup.AudioProperties[i].StartTime == -1)
+                playGroup.AudioProperties[i] = new AudioProperty(AudioSettings.dspTime);
 
-            if (carrierGroup.ASIDs[i].PlayStatus == PlayType.ReadyToPlay)
+            if (asID.PlayStatus == PlayType.ReadyToPlay)
             {
-                AudioSource audioSource = poolGroup.Pool[0].GetAudioSource(carrierGroup.ASIDs[i].ASID).GetComponent<AudioSource>();
-                audioSource.clip = managerGroup.Manager[0].ClipList.clips[carrierGroup.ACIDs[i].ACID];
+                AudioSource audioSource = poolGroup.Pool[0].GetAudioSource(asID.ASID).GetComponent<AudioSource>();
+                audioSource.clip = managerGroup.Manager[0].ClipList.clips[playGroup.ACIDs[i].ACID];
 
-                double lastTimeStarted = carrierGroup.AudioProperties[i].StartTime;
+                double lastTimeStarted = playGroup.AudioProperties[i].StartTime;
                 double currentTime = AudioSettings.dspTime;
                 int outputSampleRate = AudioSettings.outputSampleRate;
                 int clipSampleRate = audioSource.clip.frequency;
@@ -112,9 +112,9 @@ public class AudioSourcePlaybackSystem : ComponentSystem
                         audioSource.timeSamples = (int)((samplesSinceLastTimeStarted % (clipTotalSamples * ((double)outputSampleRate / clipSampleRate))) * ((double)clipSampleRate / outputSampleRate));
                 }
                 else
-                    carrierGroup.AudioProperties[i] = new AudioProperty(AudioSettings.dspTime);
+                    playGroup.AudioProperties[i] = new AudioProperty(AudioSettings.dspTime);
                 audioSource.Play();
-                carrierGroup.ASIDs[i] = new AudioSourceID(carrierGroup.Entities[i], carrierGroup.ASIDs[i].ASID, carrierGroup.ASIDs[i].Priority, PlayType.Play);
+                playGroup.ASIDs[i] = new AudioSourceID(asID.EntityID, asID.ASID, asID.Priority, PlayType.Play);
                 //Debug.Log(AudioSettings.dspTime);
                 //PostUpdateCommands.AddComponent<Coloring>(carrierGroup.asIDs[i].EntityID, new Coloring(Color.red));
             }
