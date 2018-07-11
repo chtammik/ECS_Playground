@@ -19,7 +19,8 @@ public class AudioInfoGUISystem : ComponentSystem
         UpdateInjectedComponentGroups();
         for (int i = 0; i < asidGroup.Length; i++)
         {
-            ASIDPlayStatus.Add(asidGroup.asID[i].EntityID.Index, asidGroup.asID[i].PlayStatus);
+            if (!ASIDPlayStatus.TryGetValue(asidGroup.asID[i].EntityID.Index, out PlayType temp))
+                ASIDPlayStatus.Add(asidGroup.asID[i].EntityID.Index, asidGroup.asID[i].PlayStatus);
         }
     }
 
