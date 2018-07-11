@@ -81,8 +81,8 @@ public class AudioSourcePlaybackSystem : ComponentSystem
                 AudioSource audioSource = poolGroup.Pool[0].GetAudioSource(asID.ASID).GetComponent<AudioSource>();
                 audioSource.Stop();
                 poolGroup.Pool[0].ReturnIDBack(asID.ASID);
-                muteGroup.ASIDs[i] = new AudioSourceID(asID.EntityID, -1, asID.Priority, PlayType.Mute);
             }
+            muteGroup.ASIDs[i] = new AudioSourceID(asID.EntityID, -1, asID.Priority, PlayType.Mute);
             Entity entity = muteGroup.Entities[i];
             PostUpdateCommands.RemoveComponent<MuteSoundRequest>(entity);
         }
