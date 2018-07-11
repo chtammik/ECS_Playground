@@ -61,9 +61,10 @@ public class AudioSourcePlaybackSystem : ComponentSystem
             {
                 AudioSource audioSource = poolGroup.Pool[0].GetAudioSource(asID.ASID).GetComponent<AudioSource>();
                 audioSource.Stop();
+                audioSource.timeSamples = 0;
                 poolGroup.Pool[0].ReturnIDBack(asID.ASID);
-                stopGroup.ASIDs[i] = new AudioSourceID(asID.EntityID, -1, asID.Priority, PlayType.Stop);
             }
+            stopGroup.ASIDs[i] = new AudioSourceID(asID.EntityID, -1, asID.Priority, PlayType.Stop);
             stopGroup.AudioProperties[i] = new AudioProperty(-1);
             Entity entity = stopGroup.Entities[i];
             PostUpdateCommands.RemoveComponent<AudioSourceID>(entity);

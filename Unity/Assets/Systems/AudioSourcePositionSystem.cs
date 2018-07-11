@@ -34,11 +34,6 @@ public class AudioSourcePositionSystem : ComponentSystem
 
     protected override void OnUpdate()
     {
-        if (asidGroup.Length == 0)
-        {
-            return;
-        }
-
         //record entities' current positions to the dictionary.
         for (int i = 0; i < asidGroup.Length; i++)
         {

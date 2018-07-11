@@ -54,13 +54,7 @@ public class AudioSourcePool : MonoBehaviour
 
     public int GetNewID()
     {
-        if (IDs.Count == 0)
-            return -1;
-        else
-        {
-            int newID = IDs.Dequeue();
-            return newID;
-        }
+        return IDs.Count == 0 ? -1 : IDs.Dequeue();
     }
 
     public void ReturnIDBack(int id)
@@ -86,7 +80,5 @@ public class AudioSourcePool : MonoBehaviour
         else
             throw new Exception("can't get position because no such id found");
     }
-
-
 
 }
