@@ -12,7 +12,7 @@ public class AudioSourcePool : MonoBehaviour
     Dictionary<int, GameObject> PoolDictionary;
     Queue<int> IDs;
     Dictionary<int, float3> PositionDictionary;
-    //public static Entity singletonEntity;
+    public bool SourceAvailable { get { return IDs.Count > 0; } }
 
     void Awake()
     {
@@ -30,7 +30,6 @@ public class AudioSourcePool : MonoBehaviour
             PoolDictionary.Add(id, pool[i]);
             IDs.Enqueue(id);
             PositionDictionary.Add(id, new float3());
-            //singletonEntity = pool[i].GetComponent<GameObjectEntity>().Entity;
         }
     }
 
@@ -45,19 +44,17 @@ public class AudioSourcePool : MonoBehaviour
 
     public GameObject GetAudioSource(int id)
     {
-        if (PoolDictionary.ContainsKey(id))
+        if (PoolDictionary.TryGetValue(id, out GameObject tempGO))
             return PoolDictionary[id];
         else
         {
             Debug.Log("No AudioSource Found, ID invalid");
             return null;
         }
-            
     }
 
     public int GetNewID()
     {
-        //Debug.Log(IDs.Count);
         if (IDs.Count == 0)
             return -1;
         else
@@ -69,7 +66,7 @@ public class AudioSourcePool : MonoBehaviour
 
     public void ReturnIDBack(int id)
     {
-        if (PoolDictionary.ContainsKey(id))
+        if (PoolDictionary.TryGetValue(id, out GameObject tempGO))
             IDs.Enqueue(id);
         else
             throw new Exception("ID can't be returned to the pool, ID invalid");
@@ -90,4 +87,7 @@ public class AudioSourcePool : MonoBehaviour
         else
             throw new Exception("can't get position because no such id found");
     }
+
+
+
 }

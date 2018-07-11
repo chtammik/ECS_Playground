@@ -40,7 +40,7 @@ public class CowGenerator : MonoBehaviour
         }
     }
 
-    public static KeyCode CowKeyCode(int entityIndex)
+    public static KeyCode KeyCode_Moo(int entityIndex)
     {
         int index = CowEntityIDs.IndexOf(entityIndex);
         switch (index)
@@ -60,19 +60,45 @@ public class CowGenerator : MonoBehaviour
         }
     }
 
+    public static KeyCode KeyCode_Mute(int entityIndex)
+    {
+        int index = CowEntityIDs.IndexOf(entityIndex);
+        switch (index)
+        {
+            case 0:
+                return KeyCode.Q;
+            case 1:
+                return KeyCode.W;
+            case 2:
+                return KeyCode.E;
+            case 3:
+                return KeyCode.R;
+            case 4:
+                return KeyCode.T;
+            default:
+                throw new Exception("Entity index invalid or not found in CowEntityIDs");
+        }
+    }
+
     void OnGUI()
     {
-        GUI.Box(new Rect(100, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[0]].ToString());
-        GUI.Box(new Rect(325, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[1]].ToString());
-        GUI.Box(new Rect((Screen.width / 2) - 25, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[2]].ToString());
-        GUI.Box(new Rect(Screen.width - 350, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[3]].ToString());
-        GUI.Box(new Rect(Screen.width - 125, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[4]].ToString());
+        GUI.Box(new Rect(50, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[0]].ToString());
+        GUI.Box(new Rect(300, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[1]].ToString());
+        GUI.Box(new Rect((Screen.width / 2) - 50, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[2]].ToString());
+        GUI.Box(new Rect(Screen.width - 400, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[3]].ToString());
+        GUI.Box(new Rect(Screen.width - 175, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[4]].ToString());
 
-        GUI.Box(new Rect(100, 50, 100, 30), "Press 1");
-        GUI.Box(new Rect(325, 50, 100, 30), "Press 2");
-        GUI.Box(new Rect((Screen.width / 2) - 25, 50, 100, 30), "Press 3");
-        GUI.Box(new Rect(Screen.width - 350, 50, 100, 30), "Press 4");
-        GUI.Box(new Rect(Screen.width - 125, 50, 100, 30), "Press 5");
+        GUI.Box(new Rect(50, 50, 150, 30), "Play/Stop: Press 1");
+        GUI.Box(new Rect(300, 50, 150, 30), "Play/Stop: Press 2");
+        GUI.Box(new Rect((Screen.width / 2) - 50, 50, 150, 30), "Play/Stop: Press 3");
+        GUI.Box(new Rect(Screen.width - 400, 50, 150, 30), "Play/Stop: Press 4");
+        GUI.Box(new Rect(Screen.width - 175, 50, 150, 30), "Play/Stop: Press 5");
+
+        GUI.Box(new Rect(50, 75, 150, 30), "Mute/Unmute: Press Q");
+        GUI.Box(new Rect(300, 75, 150, 30), "Mute/Unmute: Press W");
+        GUI.Box(new Rect((Screen.width / 2) - 50, 75, 150, 30), "Mute/Unmute: Press E");
+        GUI.Box(new Rect(Screen.width - 400, 75, 150, 30), "Mute/Unmute: Press R");
+        GUI.Box(new Rect(Screen.width - 175, 75, 150, 30), "Mute/Unmute: Press T");
     }
 
 }
@@ -87,7 +113,7 @@ public struct Moo : IComponentData
         EntityID = entity;
     }
 }
-public enum MooType { StartMooing, Mooing, StopMooing, Quiet }
+public enum MooType { StartMooing, Mooing, StopMooing, Quiet, MuteMooing, Muted, UnmuteMooing }
 
 public struct Coloring : IComponentData
 {

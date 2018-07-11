@@ -18,10 +18,20 @@ public class MooControlSystem : ComponentSystem
     {
         for (int i = 0; i < mooGroup.Length; i++)
         {
-            if (mooGroup.Moos[i].MooStatus == MooType.Quiet && Input.GetKeyUp(CowGenerator.CowKeyCode(mooGroup.Entities[i].Index)))
-                mooGroup.Moos[i] = new Moo(MooType.StartMooing, mooGroup.Entities[i]);
-            if (mooGroup.Moos[i].MooStatus == MooType.Mooing && Input.GetKeyUp(CowGenerator.CowKeyCode(mooGroup.Entities[i].Index)))
+            if (mooGroup.Moos[i].MooStatus == MooType.Mooing && Input.GetKeyUp(CowGenerator.KeyCode_Moo(mooGroup.Entities[i].Index)))
                 mooGroup.Moos[i] = new Moo(MooType.StopMooing, mooGroup.Entities[i]);
+
+            if (mooGroup.Moos[i].MooStatus == MooType.Mooing && Input.GetKeyUp(CowGenerator.KeyCode_Mute(mooGroup.Entities[i].Index)))
+                mooGroup.Moos[i] = new Moo(MooType.MuteMooing, mooGroup.Entities[i]);
+
+            if (mooGroup.Moos[i].MooStatus == MooType.Muted && Input.GetKeyUp(CowGenerator.KeyCode_Moo(mooGroup.Entities[i].Index)))
+                mooGroup.Moos[i] = new Moo(MooType.StopMooing, mooGroup.Entities[i]);
+
+            if (mooGroup.Moos[i].MooStatus == MooType.Muted && Input.GetKeyUp(CowGenerator.KeyCode_Mute(mooGroup.Entities[i].Index)))
+                mooGroup.Moos[i] = new Moo(MooType.UnmuteMooing, mooGroup.Entities[i]);
+
+            if (mooGroup.Moos[i].MooStatus == MooType.Quiet && Input.GetKeyUp(CowGenerator.KeyCode_Moo(mooGroup.Entities[i].Index)))
+                mooGroup.Moos[i] = new Moo(MooType.StartMooing, mooGroup.Entities[i]);
         }
     }
 }

@@ -3,8 +3,8 @@ using System.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-public enum PlayType { NeedSource, ReadyToPlay, Play, Stop }
-public enum VoiceStatusType { Real, Virtual }
+public enum PlayType { NeedSource, ReadyToPlay, Play, Mute, Stop }
+public enum VoiceStatusType { Real, Virtual, Zero }
 public enum PriorityType { Low, Medium, High }
 public struct AudioSourceID : IComponentData
 {
@@ -18,9 +18,15 @@ public struct AudioSourceID : IComponentData
     {
         EntityID = entity;
         ASID = id;
-        VoiceStatus = id != -1 ? VoiceStatusType.Real : VoiceStatusType.Virtual;
         Priority = priority;
         PlayStatus = status;
+
+        if (status == PlayType.Mute || status == PlayType.NeedSource)
+            VoiceStatus = VoiceStatusType.Virtual;
+        else if (status == PlayType.Stop)
+            VoiceStatus = VoiceStatusType.Zero;
+        else
+            VoiceStatus = VoiceStatusType.Real;
     }
 }
 
@@ -35,6 +41,7 @@ public struct AudioClipID : IComponentData
 }
 
 public struct StopSoundRequest : IComponentData { }
+public struct MuteSoundRequest : IComponentData { }
 
 public struct AudioProperty: IComponentData
 {

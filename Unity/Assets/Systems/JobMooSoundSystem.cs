@@ -22,10 +22,21 @@ public class JobMooSoundSystem : JobComponentSystem
                 moo.MooStatus = MooType.Quiet;
             }
 
+            if (moo.MooStatus == MooType.MuteMooing)
+            {
+                CommandBuffer.AddComponent<MuteSoundRequest>(moo.EntityID, new MuteSoundRequest());
+                moo.MooStatus = MooType.Muted;
+            }
+
+            if (moo.MooStatus == MooType.UnmuteMooing)
+            {
+                AudioPoolSystem.SetAudioSourceID(CommandBuffer, moo.EntityID);
+                moo.MooStatus = MooType.Mooing;
+            }
+
             if (moo.MooStatus == MooType.StartMooing)
             {
-                CommandBuffer.AddComponent<AudioSourceID>(moo.EntityID, new AudioSourceID(moo.EntityID, -1, PriorityType.Medium, PlayType.NeedSource));
-                CommandBuffer.AddComponent<AudioClipID>(moo.EntityID, new AudioClipID(moo.EntityID.Index - 2));
+                AudioPoolSystem.AddAudioSourceID(CommandBuffer, moo.EntityID, moo.EntityID.Index - 2);
                 moo.MooStatus = MooType.Mooing;
             }
         }
