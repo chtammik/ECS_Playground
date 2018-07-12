@@ -20,7 +20,8 @@ public class CowGenerator : MonoBehaviour
             ComponentType.Create<Position>(),
             ComponentType.Create<Moo>(),
             ComponentType.Create<TransformMatrix>(),
-            ComponentType.Create<AudioProperty>());
+            ComponentType.Create<AudioProperty>(),
+            ComponentType.Create<AudioSourceID>());
         MeshInstanceRenderer meshInstanceRenderer = new MeshInstanceRenderer();
         var cowPrefab = Instantiate(CowPrefab);
         meshInstanceRenderer = cowPrefab.GetComponent<MeshInstanceRendererComponent>().Value;
@@ -34,7 +35,8 @@ public class CowGenerator : MonoBehaviour
             Entity cow = entityManager.CreateEntity(CowArchetype);
             entityManager.SetComponentData<Position>(cow, new Position(pos));
             entityManager.SetComponentData<Moo>(cow, new Moo(MooType.StartMooing, cow));
-            entityManager.SetComponentData<AudioProperty>(cow, new AudioProperty(-1));
+            entityManager.SetComponentData<AudioProperty>(cow, new AudioProperty(-1, -1));
+            entityManager.SetComponentData<AudioSourceID>(cow, new AudioSourceID(cow, -1, PriorityType.Medium, PlayType.NeedSource));
             entityManager.AddSharedComponentData<MeshInstanceRenderer>(cow, meshInstanceRenderer);
             CowEntityIDs.Add(cow.Index);
         }

@@ -27,13 +27,13 @@ public class JobMooSoundSystem : JobComponentSystem
 
             if (moo.MooStatus == MooType.UnmuteMooing)
             {
-                AudioPoolSystem.SetAudioSourceID(CommandBuffer, moo.EntityID);
+                CommandBuffer.AddComponent<PlaySoundRequest>(moo.EntityID, new PlaySoundRequest(-1));
                 moo.MooStatus = MooType.Mooing;
             }
 
             if (moo.MooStatus == MooType.StartMooing)
             {
-                AudioPoolSystem.AddAudioSourceID(CommandBuffer, moo.EntityID, moo.EntityID.Index - 2);
+                CommandBuffer.AddComponent<PlaySoundRequest>(moo.EntityID, new PlaySoundRequest(moo.EntityID.Index - 2));
                 moo.MooStatus = MooType.Mooing;
             }
         }

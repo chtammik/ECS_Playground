@@ -1,9 +1,9 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
+using UnityEngine;
 
 public class AudioPoolSystem : ComponentSystem
 {
-    static AudioSourcePool ThePool;
-
     struct PoolGroup
     {
         public ComponentArray<AudioSourcePool> Pool;
@@ -14,45 +14,32 @@ public class AudioPoolSystem : ComponentSystem
     struct ASIDGroup
     {
         public readonly int Length;
+        public EntityArray Entities;
         public ComponentDataArray<AudioSourceID> ASIDs;
-        public ComponentDataArray<AudioProperty> AudioProperties;
+        [ReadOnly] public ComponentDataArray<PlaySoundRequest> PlayRequests;
     }
 
     [Inject] ASIDGroup asidGroup;
-
-    protected override void OnStartRunning()
-    {
-        UpdateInjectedComponentGroups();
-        ThePool = poolGroup.Pool[0];
-    }
 
     protected override void OnUpdate()
     {
         for (int i = 0; i < asidGroup.Length; i++)
         {
-            if (asidGroup.ASIDs[i].PlayStatus == PlayType.NeedSource)
+            if (asidGroup.ASIDs[i].PlayStatus == PlayType.NeedSource 
+                || asidGroup.ASIDs[i].PlayStatus == PlayType.Mute
+                || asidGroup.ASIDs[i].PlayStatus == PlayType.Stop)
             {
-                int newID = poolGroup.Pool[0].GetNewID();
-                if (newID != -1)
-                    asidGroup.ASIDs[i] = new AudioSourceID(asidGroup.ASIDs[i].EntityID, newID, asidGroup.ASIDs[i].Priority, PlayType.ReadyToPlay);
+                if (poolGroup.Pool[0].SourceAvailable)
+                    asidGroup.ASIDs[i] = new AudioSourceID(asidGroup.Entities[i], poolGroup.Pool[0].GetNewID(), PriorityType.Medium, PlayType.ReadyToPlay);
+                else
+                    asidGroup.ASIDs[i] = new AudioSourceID(asidGroup.Entities[i], -1, PriorityType.Medium, PlayType.NeedSource);
+            }
+
+            else
+            {
+                Debug.Log("It's already playing.");
+                PostUpdateCommands.RemoveComponent<PlaySoundRequest>(asidGroup.Entities[i]);
             }
         }
-    }
-
-    public static void AddAudioSourceID(EntityCommandBuffer commandBuffer, Entity entity, int audioClipID)
-    {
-        if (ThePool != null && ThePool.SourceAvailable)
-            commandBuffer.AddComponent<AudioSourceID>(entity, new AudioSourceID(entity, ThePool.GetNewID(), PriorityType.Medium, PlayType.ReadyToPlay));
-        else
-            commandBuffer.AddComponent<AudioSourceID>(entity, new AudioSourceID(entity, -1, PriorityType.Medium, PlayType.NeedSource));
-        commandBuffer.AddComponent<AudioClipID>(entity, new AudioClipID(audioClipID));
-    }
-
-    public static void SetAudioSourceID(EntityCommandBuffer commandBuffer, Entity entity)
-    {
-        if (ThePool != null && ThePool.SourceAvailable)
-            commandBuffer.SetComponent<AudioSourceID>(entity, new AudioSourceID(entity, ThePool.GetNewID(), PriorityType.Medium, PlayType.ReadyToPlay));
-        else
-            commandBuffer.SetComponent<AudioSourceID>(entity, new AudioSourceID(entity, -1, PriorityType.Medium, PlayType.NeedSource));
     }
 }

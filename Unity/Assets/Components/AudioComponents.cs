@@ -27,26 +27,28 @@ public struct AudioSourceID : IComponentData
     }
 }
 
-public struct AudioClipID : IComponentData
+public struct PlaySoundRequest : IComponentData
 {
-    public int ACID;
+    public int AudioClipID;
 
-    public AudioClipID(int value)
+    public PlaySoundRequest(int value)
     {
-        ACID = value;
+        AudioClipID = value;
     }
 }
 
 public struct StopSoundRequest : IComponentData { }
 public struct MuteSoundRequest : IComponentData { }
 
-public struct AudioProperty: IComponentData
+public struct AudioProperty : IComponentData
 {
     public double StartTime;
+    public int AudioClipID;
 
-    public AudioProperty(double startTime)
+    public AudioProperty(double startTime, int clipID)
     {
         StartTime = startTime;
+        AudioClipID = clipID;
     }
 }
 
