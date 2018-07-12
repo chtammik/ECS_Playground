@@ -4,8 +4,8 @@ using Unity.Rendering;
 using Unity.Transforms;
 using Unity.Mathematics;
 
-public class Bootstrap : MonoBehaviour {
-    public static Bootstrap Instance { get; private set; }
+public class BootstrapRenderingCubes : MonoBehaviour {
+    public static BootstrapRenderingCubes Instance { get; private set; }
     public GameObject ECSPrefab;
     public GameObject UsualPrefab;
     public int count = 10000;

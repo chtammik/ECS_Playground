@@ -32,7 +32,7 @@ namespace SimpleExample.ECS
 			var job = new MovePositionJob()
             {
                 deltaTime = Time.deltaTime,
-                speed = Bootstrap.Instance.speed
+                speed = BootstrapRenderingCubes.Instance.speed
             };
             // scheduling the job pushes it to the job system to deal with
             // the jobHandle we return can be used to chain data dependensies
