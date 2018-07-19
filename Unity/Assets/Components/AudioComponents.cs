@@ -11,7 +11,7 @@ public struct AudioSourceID : IComponentData
     {
         OriginalEntity = originalEntity;
         HandleEntity = handleEntity; //THIS LINE! TOOK ME FOREVER! GOODBYE DICTIONARY!
-        ASID = audioSourceID;
+        ASID = audioSourceID; //This is not even needed, will just leave it for debug purposes maybe.
     }
 }
 
@@ -73,7 +73,7 @@ public struct AudioProperty_SpatialBlend : IComponentData
 public struct AudioSourceHandle : IComponentData
 {
     public Entity Entity;
-    public int ASID;
+    public int ASID; //This is not even needed, will just leave it for debug purposes maybe.
 
     public AudioSourceHandle(Entity entity, int asid)
     {

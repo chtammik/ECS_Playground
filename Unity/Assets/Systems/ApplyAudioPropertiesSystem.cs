@@ -35,9 +35,17 @@ public class ApplyAudioPropertiesSystem : ComponentSystem
             Entity entity = sourceGroup.Entities[i];
             AudioSource audioSource = sourceGroup.Sources[i];
             if (AudioClips.Exists(entity))
+            {
                 audioSource.clip = BootstrapAudio.GetClipList().clips[AudioClips[entity].ID];
+                PostUpdateCommands.RemoveComponent<AudioClipID>(entity);
+            }
+                
             if (AudioSpatialBlends.Exists(entity))
+            {
                 audioSource.spatialBlend = AudioSpatialBlends[entity].Blend;
+                PostUpdateCommands.RemoveComponent<AudioProperty_SpatialBlend>(entity);
+            }
+                
             //...
             PostUpdateCommands.AddSharedComponent(entity, new ReadyToPlay());
         }

@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-[UpdateBefore(typeof(CopyAudioPropertiesSystem))]
+[UpdateBefore(typeof(CopyAudioPropertiesSystem.CopyAudioPropertiesBarrier))]
 public class AudioPoolSystem : JobComponentSystem
 {
     public class AssignSourceIDBarrier : BarrierSystem { }

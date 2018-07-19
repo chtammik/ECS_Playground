@@ -2,9 +2,10 @@
 using Unity.Entities;
 using UnityEngine;
 
+[UpdateAfter(typeof(ApplyAudioPropertiesSystem))]
 public class AudioPlaySystem : ComponentSystem
 {
-    struct PlayGroup
+    struct ToPlayGroup
     {
         public readonly int Length;
         public EntityArray Entities;
@@ -14,15 +15,15 @@ public class AudioPlaySystem : ComponentSystem
         [ReadOnly] public SharedComponentDataArray<ReadyToPlay> ReadyToPlays;
         [ReadOnly] public SubtractiveComponent<AudioPlaying> AudioPlayings;
     }
-    [Inject] PlayGroup playGroup;
+    [Inject] ToPlayGroup toPlayGroup;
 
     protected override void OnUpdate()
     {
-        for (int i = 0; i < playGroup.Length; i++)
+        for (int i = 0; i < toPlayGroup.Length; i++)
         {
-            playGroup.AudioSources[i].Play();
-            PostUpdateCommands.RemoveComponent<ReadyToPlay>(playGroup.Entities[i]);
-            PostUpdateCommands.AddSharedComponent(playGroup.Entities[i], new AudioPlaying());
+            toPlayGroup.AudioSources[i].Play();
+            PostUpdateCommands.RemoveComponent<ReadyToPlay>(toPlayGroup.Entities[i]);
+            PostUpdateCommands.AddSharedComponent(toPlayGroup.Entities[i], new AudioPlaying());
         }
     }
 
