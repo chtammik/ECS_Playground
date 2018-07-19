@@ -28,7 +28,7 @@ public class BootstrapAudio : MonoBehaviour
             GameObject sourceGO = Instantiate(sourcePrefab);
             Entity entity = GameObjectEntity.AddToEntityManager(entityManager, sourceGO);
             entityManager.AddComponentData(entity, new Position());
-            entityManager.AddComponentData(entity, new CopyTransformFromGameObject());
+            entityManager.AddComponentData(entity, new CopyTransformToGameObject());
             int sourceID = sourceGO.GetComponent<AudioSource>().GetInstanceID();
             entityManager.AddComponentData(entity, new AudioSourceHandle(entity, sourceID));
         }
