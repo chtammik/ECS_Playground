@@ -5,13 +5,11 @@ public struct AudioSourceID : IComponentData
 {
     public Entity OriginalEntity;
     public Entity HandleEntity;
-    public int ASID;
 
-    public AudioSourceID(Entity originalEntity, Entity handleEntity, int audioSourceID)
+    public AudioSourceID(Entity originalEntity, Entity handleEntity)
     {
         OriginalEntity = originalEntity;
         HandleEntity = handleEntity; //THIS LINE! TOOK ME FOREVER! GOODBYE DICTIONARY!
-        ASID = audioSourceID; //This is not even needed, will just leave it for debug purposes maybe.
     }
 }
 
@@ -26,35 +24,36 @@ public struct PlaybackState : IComponentData
     }
 }
 
-public struct PlaySoundRequest : IComponentData
+public struct AudioPlayRequest : IComponentData
 {
     public Entity Entity;
 
-    public PlaySoundRequest(Entity entity)
+    public AudioPlayRequest(Entity entity)
     {
         Entity = entity;
     }
 }
-public struct StopSoundRequest : ISharedComponentData { }
-public struct MuteSoundRequest : ISharedComponentData { }
+public struct AudioStopRequest : ISharedComponentData { }
+public struct AudioMuteRequest : ISharedComponentData { }
 public struct ReadyToPlay : ISharedComponentData { }
 public struct AudioPlaying : ISharedComponentData { }
+public struct AudioPlayingVirtually : ISharedComponentData { }
 
-public struct StartTime : IComponentData
+public struct AudioProperty_StartTime : IComponentData
 {
     public double Time;
 
-    public StartTime(double time)
+    public AudioProperty_StartTime(double time)
     {
         Time = time;
     }
 }
 
-public struct AudioClipID : IComponentData
+public struct AudioProperty_AudioClipID : IComponentData
 {
     public int ID;
 
-    public AudioClipID(int id)
+    public AudioProperty_AudioClipID(int id)
     {
         ID = id;
     }
@@ -72,13 +71,13 @@ public struct AudioProperty_SpatialBlend : IComponentData
 
 public struct AudioSourceHandle : IComponentData
 {
-    public Entity Entity;
-    public int ASID; //This is not even needed, will just leave it for debug purposes maybe.
+    public Entity OriginalEntity;
+    public Entity HandleEntity;
 
-    public AudioSourceHandle(Entity entity, int asid)
+    public AudioSourceHandle(Entity originalEntity, Entity handleEntity)
     {
-        Entity = entity;
-        ASID = asid;
+        OriginalEntity = originalEntity;
+        HandleEntity = handleEntity;
     }
 }
 

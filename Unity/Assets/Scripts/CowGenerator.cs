@@ -31,9 +31,9 @@ public class CowGenerator : MonoBehaviour
         {
             float3 pos = new float3(-10f + 5f * i, 0f, 0f);
             Entity cow = entityManager.CreateEntity(CowArchetype);
-            entityManager.SetComponentData<Position>(cow, new Position(pos));
-            entityManager.SetComponentData<Moo>(cow, new Moo(MooType.StartMooing, cow));
-            entityManager.AddSharedComponentData<MeshInstanceRenderer>(cow, meshInstanceRenderer);
+            entityManager.SetComponentData(cow, new Position(pos));
+            entityManager.SetComponentData(cow, new Moo(MooType.StartMooing, cow));
+            entityManager.AddSharedComponentData(cow, meshInstanceRenderer);
             CowEntityIDs.Add(cow.Index);
         }
     }
@@ -86,17 +86,17 @@ public class CowGenerator : MonoBehaviour
         //GUI.Box(new Rect(Screen.width - 400, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[3]].ToString());
         //GUI.Box(new Rect(Screen.width - 175, 25, 100, 30), AudioInfoGUISystem.ASIDPlayStatus[CowEntityIDs[4]].ToString());
 
-        //GUI.Box(new Rect(50, 50, 150, 30), "Play/Stop: Press 1");
-        //GUI.Box(new Rect(300, 50, 150, 30), "Play/Stop: Press 2");
-        //GUI.Box(new Rect((Screen.width / 2) - 50, 50, 150, 30), "Play/Stop: Press 3");
-        //GUI.Box(new Rect(Screen.width - 400, 50, 150, 30), "Play/Stop: Press 4");
-        //GUI.Box(new Rect(Screen.width - 175, 50, 150, 30), "Play/Stop: Press 5");
+        GUI.Box(new Rect(50, 50, 150, 30), "Play/Stop: Press 1");
+        GUI.Box(new Rect(300, 50, 150, 30), "Play/Stop: Press 2");
+        GUI.Box(new Rect((Screen.width / 2) - 50, 50, 150, 30), "Play/Stop: Press 3");
+        GUI.Box(new Rect(Screen.width - 400, 50, 150, 30), "Play/Stop: Press 4");
+        GUI.Box(new Rect(Screen.width - 175, 50, 150, 30), "Play/Stop: Press 5");
 
-        //GUI.Box(new Rect(50, 75, 150, 30), "Mute/Unmute: Press Q");
-        //GUI.Box(new Rect(300, 75, 150, 30), "Mute/Unmute: Press W");
-        //GUI.Box(new Rect((Screen.width / 2) - 50, 75, 150, 30), "Mute/Unmute: Press E");
-        //GUI.Box(new Rect(Screen.width - 400, 75, 150, 30), "Mute/Unmute: Press R");
-        //GUI.Box(new Rect(Screen.width - 175, 75, 150, 30), "Mute/Unmute: Press T");
+        GUI.Box(new Rect(50, 75, 150, 30), "Mute/Unmute: Press Q");
+        GUI.Box(new Rect(300, 75, 150, 30), "Mute/Unmute: Press W");
+        GUI.Box(new Rect((Screen.width / 2) - 50, 75, 150, 30), "Mute/Unmute: Press E");
+        GUI.Box(new Rect(Screen.width - 400, 75, 150, 30), "Mute/Unmute: Press R");
+        GUI.Box(new Rect(Screen.width - 175, 75, 150, 30), "Mute/Unmute: Press T");
     }
 
 }

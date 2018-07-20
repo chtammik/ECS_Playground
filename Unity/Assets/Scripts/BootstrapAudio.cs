@@ -18,10 +18,9 @@ public class BootstrapAudio : MonoBehaviour
 
     void Initialization_Pool()
     {
-        GameObject sourcePrefab = new GameObject("Source");
+        GameObject sourcePrefab = new GameObject();
         AudioSource audioSource = sourcePrefab.AddComponent<AudioSource>();
-        audioSource.playOnAwake = false;
-        audioSource.loop = true;
+        ResetAudioSource(audioSource);
 
         for (int i = 0; i < poolSize; i++)
         {
@@ -29,9 +28,11 @@ public class BootstrapAudio : MonoBehaviour
             Entity entity = GameObjectEntity.AddToEntityManager(entityManager, sourceGO);
             entityManager.AddComponentData(entity, new Position());
             entityManager.AddComponentData(entity, new CopyTransformToGameObject());
-            int sourceID = sourceGO.GetComponent<AudioSource>().GetInstanceID();
-            entityManager.AddComponentData(entity, new AudioSourceHandle(entity, sourceID));
+            entityManager.AddComponentData(entity, new AudioSourceHandle(entity, entity));
+            sourceGO.name = "Source " + sourceGO.GetComponent<AudioSource>().GetInstanceID();
         }
+  
+        Destroy(sourcePrefab);
     }
 
     void Initialization_SoundBank()
@@ -51,5 +52,11 @@ public class BootstrapAudio : MonoBehaviour
         return clipList;
     }
 
+    public static void ResetAudioSource(AudioSource audioSource)
+    {
+        audioSource.clip = null;
+        audioSource.playOnAwake = false;
+        audioSource.loop = true;
+    }
 
 }

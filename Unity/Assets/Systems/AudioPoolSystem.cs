@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
 
 [UpdateBefore(typeof(CopyAudioPropertiesSystem.CopyAudioPropertiesBarrier))]
 public class AudioPoolSystem : JobComponentSystem
@@ -11,7 +12,7 @@ public class AudioPoolSystem : JobComponentSystem
     struct PlayRequestGroup
     {
         public readonly int Length;
-        [ReadOnly] public ComponentDataArray<PlaySoundRequest> PlayRequests;
+        [ReadOnly] public ComponentDataArray<AudioPlayRequest> PlayRequests;
         [ReadOnly] public SubtractiveComponent<AudioSourceID> ASIDs;
     }
     [Inject] PlayRequestGroup playRequestGroup;
@@ -20,21 +21,22 @@ public class AudioPoolSystem : JobComponentSystem
     {
         public readonly int Length;
         [ReadOnly] public ComponentDataArray<AudioSourceHandle> SourceHandles;
-        [ReadOnly] public SubtractiveComponent<AudioSourceClaimed> Claimeds;
+        [ReadOnly] public SubtractiveComponent<AudioSourceClaimed> ClaimedTags;
     }
     [Inject] SourceHandleGroup sourceHandleGroup;
 
     struct AssignSourceIDJob : IJobParallelFor
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
-        [ReadOnly] public ComponentDataArray<PlaySoundRequest> PlayRequests;
+        [ReadOnly] public ComponentDataArray<AudioPlayRequest> PlayRequests;
         [ReadOnly] public ComponentDataArray<AudioSourceHandle> SourceHandles;
 
         public void Execute(int index)
         {
-            CommandBuffer.AddComponent(PlayRequests[index].Entity, new AudioSourceID(PlayRequests[index].Entity, SourceHandles[index].Entity, SourceHandles[index].ASID));
-            CommandBuffer.AddSharedComponent(SourceHandles[index].Entity, new AudioSourceClaimed());
-            CommandBuffer.RemoveComponent<PlaySoundRequest>(PlayRequests[index].Entity);
+            CommandBuffer.AddComponent(PlayRequests[index].Entity, new AudioSourceID(PlayRequests[index].Entity, SourceHandles[index].HandleEntity));
+            CommandBuffer.SetComponent(SourceHandles[index].HandleEntity, new AudioSourceHandle(PlayRequests[index].Entity, SourceHandles[index].HandleEntity));
+            CommandBuffer.AddSharedComponent(SourceHandles[index].HandleEntity, new AudioSourceClaimed());
+            CommandBuffer.RemoveComponent<AudioPlayRequest>(PlayRequests[index].Entity);
         }
     }
 
@@ -43,13 +45,15 @@ public class AudioPoolSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         int jobAmount = math.min(playRequestGroup.Length, sourceHandleGroup.Length);
-        var newJob = new AssignSourceIDJob
+        var assignSourceIDJob = new AssignSourceIDJob
         {
             CommandBuffer = assignSourceIDBarrier.CreateCommandBuffer(),
             PlayRequests = playRequestGroup.PlayRequests,
             SourceHandles = sourceHandleGroup.SourceHandles
         };
-        return newJob.Schedule(jobAmount, 64, inputDeps);
+        JobHandle assignSourceIDJH = assignSourceIDJob.Schedule(jobAmount, 64, inputDeps);
+
+        return assignSourceIDJH;
     }
 }
 

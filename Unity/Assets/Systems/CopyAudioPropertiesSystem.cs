@@ -8,6 +8,34 @@ public class CopyAudioPropertiesSystem : JobComponentSystem
 {
     public class CopyAudioPropertiesBarrier : BarrierSystem { }
 
+    #region CopyMuteRequestJob
+    [RequireComponentTag(typeof(AudioMuteRequest))]
+    struct CopyMuteRequestJob : IJobProcessComponentData<AudioSourceID>
+    {
+        public EntityCommandBuffer.Concurrent CommandBuffer;
+        public void Execute([ReadOnly]ref AudioSourceID asid)
+        {
+            CommandBuffer.AddSharedComponent(asid.HandleEntity, new AudioMuteRequest());
+            CommandBuffer.RemoveComponent<AudioMuteRequest>(asid.OriginalEntity);
+            CommandBuffer.RemoveComponent<AudioSourceID>(asid.OriginalEntity);
+        }
+    }
+    #endregion
+
+    #region CopyStopRequestJob
+    [RequireComponentTag(typeof(AudioStopRequest))]
+    struct CopyStopRequestJob : IJobProcessComponentData<AudioSourceID>
+    {
+        public EntityCommandBuffer.Concurrent CommandBuffer;
+        public void Execute([ReadOnly]ref AudioSourceID asid)
+        {
+            CommandBuffer.AddSharedComponent(asid.HandleEntity, new AudioStopRequest());
+            CommandBuffer.RemoveComponent<AudioStopRequest>(asid.OriginalEntity);
+            CommandBuffer.RemoveComponent<AudioSourceID>(asid.OriginalEntity);
+        }
+    }
+    #endregion
+
     #region CopySpatialBlendJob
     struct CopySpatialBlendJob : IJobProcessComponentData<AudioSourceID, AudioProperty_SpatialBlend>
     {
@@ -21,13 +49,25 @@ public class CopyAudioPropertiesSystem : JobComponentSystem
     #endregion
 
     #region CopyAudioClipIDJob
-    struct CopyAudioClipIDJob : IJobProcessComponentData<AudioSourceID, AudioClipID>
+    struct CopyAudioClipIDJob : IJobProcessComponentData<AudioSourceID, AudioProperty_AudioClipID>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
-        public void Execute([ReadOnly]ref AudioSourceID asid, [ReadOnly]ref AudioClipID acid)
+        public void Execute([ReadOnly]ref AudioSourceID asid, [ReadOnly]ref AudioProperty_AudioClipID acid)
         {
             CommandBuffer.AddComponent(asid.HandleEntity, acid);
-            CommandBuffer.RemoveComponent<AudioClipID>(asid.OriginalEntity);
+            CommandBuffer.RemoveComponent<AudioProperty_AudioClipID>(asid.OriginalEntity);
+        }
+    }
+    #endregion
+
+    #region CopyStartTimeJob
+    struct CopyStartTimeJob : IJobProcessComponentData<AudioSourceID, AudioProperty_StartTime>
+    {
+        public EntityCommandBuffer.Concurrent CommandBuffer;
+        public void Execute([ReadOnly]ref AudioSourceID asid, [ReadOnly]ref AudioProperty_StartTime startTime)
+        {
+            CommandBuffer.AddComponent(asid.HandleEntity, startTime);
+            CommandBuffer.RemoveComponent<AudioProperty_StartTime>(asid.OriginalEntity);
         }
     }
     #endregion
@@ -36,19 +76,25 @@ public class CopyAudioPropertiesSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var copySpatialBlendJob = new CopySpatialBlendJob()
+        var copyMuteRequestJob = new CopyMuteRequestJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
+        var copyStopRequestJob = new CopyStopRequestJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
+        var copySpatialBlendJob = new CopySpatialBlendJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
+        var copyAudioClipIDJob = new CopyAudioClipIDJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
+        var copyStartTimeJob = new CopyStartTimeJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
+
+        NativeArray<JobHandle> jobHandles = new NativeArray<JobHandle>(6, Allocator.Temp)
         {
-            CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer()
+            [0] = inputDeps,
+            [1] = copyMuteRequestJob.Schedule(this, inputDeps),
+            [2] = copyStopRequestJob.Schedule(this, inputDeps),
+            [3] = copySpatialBlendJob.Schedule(this, inputDeps),
+            [4] = copyAudioClipIDJob.Schedule(this, inputDeps),
+            [5] = copyStartTimeJob.Schedule(this, inputDeps)
         };
 
-        var copyAudioClipIDJob = new CopyAudioClipIDJob()
-        {
-            CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer()
-        };
+        JobHandle combinedDependencies = JobHandle.CombineDependencies(jobHandles);
+        jobHandles.Dispose();
 
-        JobHandle copySpatialBlendJH = copySpatialBlendJob.Schedule(this, inputDeps);
-        JobHandle copyAudioClipIDJH = copyAudioClipIDJob.Schedule(this, inputDeps);
-
-        return JobHandle.CombineDependencies(copySpatialBlendJH, copyAudioClipIDJH, inputDeps);
+        return combinedDependencies;
     }
 }

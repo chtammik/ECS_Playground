@@ -15,27 +15,27 @@ public class JobMooSoundSystem : JobComponentSystem
         {
             if (moo.MooStatus == MooType.StopMooing)
             {
-                CommandBuffer.AddSharedComponent(moo.Entity, new StopSoundRequest());
+                CommandBuffer.AddSharedComponent(moo.Entity, new AudioStopRequest());
                 moo.MooStatus = MooType.Quiet;
             }
 
             if (moo.MooStatus == MooType.MuteMooing)
             {
-                CommandBuffer.AddSharedComponent(moo.Entity, new MuteSoundRequest());
+                CommandBuffer.AddSharedComponent(moo.Entity, new AudioMuteRequest());
                 moo.MooStatus = MooType.Muted;
             }
 
             if (moo.MooStatus == MooType.UnmuteMooing)
             {
-                CommandBuffer.AddComponent(moo.Entity, new PlaySoundRequest(moo.Entity));
+                CommandBuffer.AddComponent(moo.Entity, new AudioPlayRequest(moo.Entity));
                 moo.MooStatus = MooType.Mooing;
             }
 
             if (moo.MooStatus == MooType.StartMooing)
             {
-                CommandBuffer.AddComponent(moo.Entity, new AudioClipID(moo.Entity.Index - 4));
+                CommandBuffer.AddComponent(moo.Entity, new AudioProperty_AudioClipID(moo.Entity.Index - 4));
                 CommandBuffer.AddComponent(moo.Entity, new AudioProperty_SpatialBlend(0));
-                CommandBuffer.AddComponent(moo.Entity, new PlaySoundRequest(moo.Entity));
+                CommandBuffer.AddComponent(moo.Entity, new AudioPlayRequest(moo.Entity));
                 moo.MooStatus = MooType.Mooing;
             }
         }

@@ -16,7 +16,7 @@ public class ApplyAudioPropertiesSystem : ComponentSystem
         [ReadOnly] public SharedComponentDataArray<AudioSourceClaimed> Claimeds;
         [ReadOnly] public ComponentDataArray<AudioSourceHandle> Handles;
         [ReadOnly] public SubtractiveComponent<ReadyToPlay> ReadyToPlays;
-        [ReadOnly] public SubtractiveComponent<AudioPlaying> AudioPlayings;
+        [ReadOnly] public SubtractiveComponent<AudioPlaying> PlayingTags;
     }
     [Inject] SourceHandleGroup sourceGroup;
 
@@ -25,7 +25,7 @@ public class ApplyAudioPropertiesSystem : ComponentSystem
         entityManager = BootstrapAudio.GetEntityManager();
     }
 
-    [Inject] ComponentDataFromEntity<AudioClipID> AudioClips;
+    [Inject] ComponentDataFromEntity<AudioProperty_AudioClipID> AudioClips;
     [Inject] ComponentDataFromEntity<AudioProperty_SpatialBlend> AudioSpatialBlends;
 
     protected override void OnUpdate()
@@ -35,16 +35,10 @@ public class ApplyAudioPropertiesSystem : ComponentSystem
             Entity entity = sourceGroup.Entities[i];
             AudioSource audioSource = sourceGroup.Sources[i];
             if (AudioClips.Exists(entity))
-            {
                 audioSource.clip = BootstrapAudio.GetClipList().clips[AudioClips[entity].ID];
-                PostUpdateCommands.RemoveComponent<AudioClipID>(entity);
-            }
                 
             if (AudioSpatialBlends.Exists(entity))
-            {
                 audioSource.spatialBlend = AudioSpatialBlends[entity].Blend;
-                PostUpdateCommands.RemoveComponent<AudioProperty_SpatialBlend>(entity);
-            }
                 
             //...
             PostUpdateCommands.AddSharedComponent(entity, new ReadyToPlay());
