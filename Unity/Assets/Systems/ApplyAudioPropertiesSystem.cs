@@ -25,8 +25,9 @@ public class ApplyAudioPropertiesSystem : ComponentSystem
         entityManager = BootstrapAudio.GetEntityManager();
     }
 
-    [Inject] ComponentDataFromEntity<AudioProperty_AudioClipID> AudioClips;
-    [Inject] ComponentDataFromEntity<AudioProperty_SpatialBlend> AudioSpatialBlends;
+    [Inject] ComponentDataFromEntity<AudioProperty_AudioClipID> AudioClip;
+    [Inject] ComponentDataFromEntity<AudioProperty_SpatialBlend> AudioSpatialBlend;
+    [Inject] ComponentDataFromEntity<AudioProperty_Loop> AudioLoop;
 
     protected override void OnUpdate()
     {
@@ -34,12 +35,17 @@ public class ApplyAudioPropertiesSystem : ComponentSystem
         {
             Entity entity = sourceGroup.Entities[i];
             AudioSource audioSource = sourceGroup.Sources[i];
-            if (AudioClips.Exists(entity))
-                audioSource.clip = BootstrapAudio.GetClipList().clips[AudioClips[entity].ID];
+            if (AudioClip.Exists(entity))
+                audioSource.clip = BootstrapAudio.GetClipList().clips[AudioClip[entity].ID];
                 
-            if (AudioSpatialBlends.Exists(entity))
-                audioSource.spatialBlend = AudioSpatialBlends[entity].Blend;
-                
+            if (AudioSpatialBlend.Exists(entity))
+                audioSource.spatialBlend = AudioSpatialBlend[entity].Blend;
+
+            if (AudioLoop.Exists(entity))
+                audioSource.loop = true;
+            else
+                audioSource.loop = false;
+
             //...
             PostUpdateCommands.AddSharedComponent(entity, new ReadyToPlay());
         }

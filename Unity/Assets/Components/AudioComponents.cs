@@ -69,6 +69,8 @@ public struct AudioProperty_SpatialBlend : IComponentData
     }
 }
 
+public struct AudioProperty_Loop : IComponentData { }
+
 public struct AudioSourceHandle : IComponentData
 {
     public Entity OriginalEntity;

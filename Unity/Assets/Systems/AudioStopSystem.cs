@@ -2,8 +2,6 @@
 using Unity.Entities;
 using UnityEngine;
 
-//TODO: The virtual groups also need to stop when done playing if it's not looping.
-
 [UpdateBefore(typeof(AudioPoolSystem.AssignSourceIDBarrier))]
 public class AudioStopSystem : ComponentSystem
 {
@@ -25,6 +23,7 @@ public class AudioStopSystem : ComponentSystem
         public EntityArray Entities;
         [ReadOnly] public ComponentArray<AudioSource> AudioSources;
         [ReadOnly] public SubtractiveComponent<AudioStopRequest> StopRequests;
+        [ReadOnly] public SubtractiveComponent<AudioProperty_Loop> LoopingTags;
         [ReadOnly] public SharedComponentDataArray<AudioPlaying> PlayingTags;
         [ReadOnly] public SharedComponentDataArray<AudioSourceClaimed> ClaimedTags;
         [ReadOnly] public ComponentDataArray<AudioSourceHandle> Handles;
@@ -35,16 +34,29 @@ public class AudioStopSystem : ComponentSystem
     {
         public readonly int Length;
         public EntityArray Entities;
-        [ReadOnly] public ComponentDataArray<AudioSourceID> ASIDs;
+        [ReadOnly] public SharedComponentDataArray<AudioPlayingVirtually> VirtualTags;
         [ReadOnly] public SharedComponentDataArray<AudioStopRequest> StopRequests;
         [ReadOnly] public ComponentDataArray<AudioPlayRequest> PlayRequests;
-        [ReadOnly] public SharedComponentDataArray<AudioPlayingVirtually> VirtualTags;
+        [ReadOnly] public SubtractiveComponent<AudioSourceID> ASIDs;
     }
     [Inject] ToStop_VirtualGroup toStop_VirtualGroup;
+
+    struct ToStop_DonePlayingVirtualGroup
+    {
+        public readonly int Length;
+        public EntityArray Entities;
+        [ReadOnly] public SharedComponentDataArray<AudioPlayingVirtually> VirtualTags;
+        [ReadOnly] public ComponentDataArray<AudioProperty_StartTime> StartTimes;
+        [ReadOnly] public SubtractiveComponent<AudioSourceID> ASIDs;
+        [ReadOnly] public SubtractiveComponent<AudioStopRequest> StopRequests;
+        [ReadOnly] public SubtractiveComponent<AudioProperty_Loop> LoopingTags;
+    }
+    [Inject] ToStop_DonePlayingVirtualGroup toStop_DonePlayingVirtualGroup;
 
     [Inject] ComponentDataFromEntity<AudioProperty_AudioClipID> AudioClip;
     [Inject] ComponentDataFromEntity<AudioProperty_SpatialBlend> AudioSpatialBlend;
     [Inject] ComponentDataFromEntity<AudioProperty_StartTime> StartTime;
+    [Inject] ComponentDataFromEntity<AudioProperty_Loop> AudioLoops;
 
     protected override void OnUpdate()
     {
@@ -53,12 +65,13 @@ public class AudioStopSystem : ComponentSystem
         {
             Entity entity = toStopGroup.Entities[i];
             AudioSource audioSource = toStopGroup.AudioSources[i];
-            audioSource.Stop(); 
+            audioSource.Stop();
             BootstrapAudio.ResetAudioSource(audioSource);
             PostUpdateCommands.RemoveComponent<AudioStopRequest>(entity);
             PostUpdateCommands.RemoveComponent<AudioPlaying>(entity);
             PostUpdateCommands.RemoveComponent<AudioSourceClaimed>(entity);
 
+            #region Remove Properties
             if (AudioClip.Exists(entity))
                 PostUpdateCommands.RemoveComponent<AudioProperty_AudioClipID>(entity);
 
@@ -67,7 +80,11 @@ public class AudioStopSystem : ComponentSystem
 
             if (StartTime.Exists(entity))
                 PostUpdateCommands.RemoveComponent<AudioProperty_StartTime>(entity);
+
+            if (AudioLoops.Exists(entity))
+                PostUpdateCommands.RemoveComponent<AudioProperty_Loop>(entity);
             //...
+            #endregion
         }
 
         //Add StopSoundRequests to AudioSources that have done playing.
@@ -75,11 +92,11 @@ public class AudioStopSystem : ComponentSystem
         {
             Entity entity = toStop_DonePlayingGroup.Entities[i];
             AudioSource audioSource = toStop_DonePlayingGroup.AudioSources[i];
-            if (!audioSource.isPlaying && audioSource.time == 0) //checking this everyframe is not ideal, any better way to do this?
+            if (!audioSource.isPlaying && audioSource.time == 0) //checking this every frame is not ideal, any better way to do this?
                 PostUpdateCommands.AddSharedComponent(entity, new AudioStopRequest());
         }
 
-        //Clean AudioSourceIDs that are playing virtually.
+        //Clean up AudioSourceIDs that are playing virtually.
         for (int i = 0; i < toStop_VirtualGroup.Length; i++)
         {
             Entity entity = toStop_VirtualGroup.Entities[i];
@@ -87,6 +104,7 @@ public class AudioStopSystem : ComponentSystem
             PostUpdateCommands.RemoveComponent<AudioPlayingVirtually>(entity);
             PostUpdateCommands.RemoveComponent<AudioPlayRequest>(entity);
 
+            #region Remove Properties
             if (AudioClip.Exists(entity))
                 PostUpdateCommands.RemoveComponent<AudioProperty_AudioClipID>(entity);
 
@@ -95,7 +113,23 @@ public class AudioStopSystem : ComponentSystem
 
             if (StartTime.Exists(entity))
                 PostUpdateCommands.RemoveComponent<AudioProperty_StartTime>(entity);
+
+            if (AudioLoops.Exists(entity))
+                PostUpdateCommands.RemoveComponent<AudioProperty_Loop>(entity);
             //...
+            #endregion
+        }
+
+        //The virtual groups also need to stop when done playing.
+        for (int i = 0; i < toStop_DonePlayingVirtualGroup.Length; i++)
+        {
+            Entity entity = toStop_DonePlayingVirtualGroup.Entities[i];
+            if (AudioClip.Exists(entity))
+            {
+                AudioClip clip = BootstrapAudio.GetClipList().clips[AudioClip[entity].ID];
+                if(AudioSettings.dspTime - toStop_DonePlayingVirtualGroup.StartTimes[i].Time > clip.length)
+                    PostUpdateCommands.AddSharedComponent(entity, new AudioStopRequest());
+            }          
         }
     }
 }

@@ -35,6 +35,7 @@ public class JobMooSoundSystem : JobComponentSystem
             {
                 CommandBuffer.AddComponent(moo.Entity, new AudioProperty_AudioClipID(moo.Entity.Index - 4));
                 CommandBuffer.AddComponent(moo.Entity, new AudioProperty_SpatialBlend(0));
+                //CommandBuffer.AddComponent(moo.Entity, new AudioProperty_Loop());
                 CommandBuffer.AddComponent(moo.Entity, new AudioPlayRequest(moo.Entity));
                 moo.MooStatus = MooType.Mooing;
             }

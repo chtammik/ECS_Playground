@@ -56,7 +56,7 @@ public class BootstrapAudio : MonoBehaviour
     {
         audioSource.clip = null;
         audioSource.playOnAwake = false;
-        audioSource.loop = true;
+        audioSource.loop = false;
     }
 
 }
