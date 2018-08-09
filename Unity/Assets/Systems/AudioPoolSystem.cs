@@ -9,7 +9,7 @@ public class AudioPoolSystem : JobComponentSystem
 {
     public class AssignSourceIDBarrier : BarrierSystem { }
 
-    struct PlayRequestGroup
+    struct PlayRequestGroup //all entities that need to play a sound.
     {
         public readonly int Length;
         [ReadOnly] public ComponentDataArray<AudioPlayRequest> PlayRequests;
@@ -17,7 +17,7 @@ public class AudioPoolSystem : JobComponentSystem
     }
     [Inject] PlayRequestGroup playRequestGroup;
 
-    struct SourceHandleGroup
+    struct SourceHandleGroup //all vacant sources
     {
         public readonly int Length;
         [ReadOnly] public ComponentDataArray<AudioSourceHandle> SourceHandles;

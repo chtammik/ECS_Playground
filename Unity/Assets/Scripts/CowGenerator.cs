@@ -19,10 +19,11 @@ public class CowGenerator : MonoBehaviour
         EntityArchetype CowArchetype = entityManager.CreateArchetype(
             ComponentType.Create<Position>(),
             ComponentType.Create<Moo>(),
-            ComponentType.Create<TransformMatrix>());
-        MeshInstanceRenderer meshInstanceRenderer = new MeshInstanceRenderer();
+            ComponentType.Create<TransformMatrix>(),
+            ComponentType.Create<MeshInstanceRenderer>()
+            );
         var cowPrefab = Instantiate(CowPrefab);
-        meshInstanceRenderer = cowPrefab.GetComponent<MeshInstanceRendererComponent>().Value;
+        MeshInstanceRenderer meshInstanceRenderer = cowPrefab.GetComponent<MeshInstanceRendererComponent>().Value;
         Destroy(cowPrefab);
 
         CowEntityIDs = new List<int>(Count);
@@ -33,7 +34,7 @@ public class CowGenerator : MonoBehaviour
             Entity cow = entityManager.CreateEntity(CowArchetype);
             entityManager.SetComponentData(cow, new Position(pos));
             entityManager.SetComponentData(cow, new Moo(MooType.StartMooing, cow));
-            entityManager.AddSharedComponentData(cow, meshInstanceRenderer);
+            entityManager.SetSharedComponentData(cow, meshInstanceRenderer);
             CowEntityIDs.Add(cow.Index);
         }
     }

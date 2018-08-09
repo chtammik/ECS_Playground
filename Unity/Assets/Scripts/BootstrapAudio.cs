@@ -8,9 +8,13 @@ public class BootstrapAudio : MonoBehaviour
     public AudioClipList ClipList;
     static AudioClipList clipList;
     static EntityManager entityManager;
+    static World audioWorld;
 
     void Awake()
     {
+        //audioWorld = new World("AudioWorld");
+        //entityManager = audioWorld.GetOrCreateManager<EntityManager>();
+        //ScriptBehaviourUpdateOrder.UpdatePlayerLoop(audioWorld);
         entityManager = World.Active.GetOrCreateManager<EntityManager>();
         Initialization_Pool();
         Initialization_SoundBank();
