@@ -12,7 +12,7 @@ public class AudioPlaySystem : ComponentSystem
         public ComponentArray<AudioSource> AudioSources;
         [ReadOnly] public SharedComponentDataArray<AudioSourceClaimed> Claimeds;
         [ReadOnly] public ComponentDataArray<AudioSourceHandle> Handles;
-        [ReadOnly] public SharedComponentDataArray<ReadyToPlay> ReadyToPlays;
+        [ReadOnly] public SharedComponentDataArray<AudioReadyToPlay> ReadyToPlays;
         [ReadOnly] public SubtractiveComponent<AudioPlaying> PlayingTags;
     }
     [Inject] ToPlayGroup toPlayGroup;
@@ -33,13 +33,13 @@ public class AudioPlaySystem : ComponentSystem
     {
         for (int i = 0; i < toPlayGroup.Length; i++)
         {
-            Entity entity = toPlayGroup.Entities[i];
+            Entity sourceEntity = toPlayGroup.Entities[i];
             AudioSource audioSource = toPlayGroup.AudioSources[i];
 
-            if (StartTime.Exists(entity)) //StartTime is the only property that needs to be applied in the AudioPlaySystem because of the need for precision.
+            if (StartTime.Exists(sourceEntity)) //StartTime is the only property that needs to be applied in the AudioPlaySystem because of the need for precision.
             {
                 double currentTime = AudioSettings.dspTime;
-                double lastTimeStarted = StartTime[entity].Time;
+                double lastTimeStarted = StartTime[sourceEntity].Time;
                 int outputSampleRate = AudioSettings.outputSampleRate;
                 int clipSampleRate = audioSource.clip.frequency;
                 int clipTotalSamples = audioSource.clip.samples;
@@ -50,19 +50,19 @@ public class AudioPlaySystem : ComponentSystem
                     audioSource.timeSamples = (int)((samplesSinceLastTimeStarted % (clipTotalSamples * ((double)outputSampleRate / clipSampleRate))) * ((double)clipSampleRate / outputSampleRate));
             }
             else
-                PostUpdateCommands.AddComponent(entity, new AudioProperty_StartTime(AudioSettings.dspTime));
+                PostUpdateCommands.AddComponent(sourceEntity, new AudioProperty_StartTime(sourceEntity, AudioSettings.dspTime));
 
             audioSource.Play();
 
-            PostUpdateCommands.RemoveComponent<ReadyToPlay>(entity);
-            PostUpdateCommands.AddSharedComponent(entity, new AudioPlaying());
+            PostUpdateCommands.RemoveComponent<AudioReadyToPlay>(sourceEntity);
+            PostUpdateCommands.AddSharedComponent(sourceEntity, new AudioPlaying());
         }
 
         for (int i = 0; i < toPlayVirtuallyGroup.Length; i++)
         {
-            Entity entity = toPlayVirtuallyGroup.Entities[i];
-            PostUpdateCommands.AddComponent(entity, new AudioProperty_StartTime(AudioSettings.dspTime));
-            PostUpdateCommands.AddSharedComponent(entity, new AudioPlayingVirtually());
+            Entity gameEntity = toPlayVirtuallyGroup.Entities[i];
+            PostUpdateCommands.AddComponent(gameEntity, new AudioProperty_StartTime(gameEntity, AudioSettings.dspTime));
+            PostUpdateCommands.AddComponent(gameEntity, new AudioPlayingVirtually(gameEntity));
         }
     }
 }

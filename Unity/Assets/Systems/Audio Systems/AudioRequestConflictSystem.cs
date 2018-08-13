@@ -5,7 +5,7 @@ using UnityEngine;
 
 //TODO: Sending an AudioPlayRequest alone can have an assigned AudioSource play nothing. Do we want to prevent this?
 
-[UpdateBefore(typeof(AudioPoolSystem.AssignSourceIDBarrier))]
+[UpdateBefore(typeof(AssignAudioSourceIDSystem.AssignSourceIDBarrier))]
 public class AudioRequestConflictSystem : JobComponentSystem
 {
     public class RequestConfilictBarrier : BarrierSystem { }
@@ -18,7 +18,7 @@ public class AudioRequestConflictSystem : JobComponentSystem
 
         public void Execute([ReadOnly]ref AudioSourceID asid)
         {
-            CommandBuffer.RemoveComponent<AudioPlayingVirtually>(asid.OriginalEntity);
+            CommandBuffer.RemoveComponent<AudioPlayingVirtually>(asid.GameEntity);
         }
     }
 

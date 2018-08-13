@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Jobs;
 
 [UpdateBefore(typeof(ApplyAudioPropertiesSystem))]
-[UpdateAfter(typeof(AudioPoolSystem.AssignSourceIDBarrier))]
+[UpdateAfter(typeof(AssignAudioSourceIDSystem.AssignSourceIDBarrier))]
 public class CopyAudioPropertiesSystem : JobComponentSystem
 {
     public class CopyAudioPropertiesBarrier : BarrierSystem { }
@@ -15,9 +15,9 @@ public class CopyAudioPropertiesSystem : JobComponentSystem
         public EntityCommandBuffer.Concurrent CommandBuffer;
         public void Execute([ReadOnly]ref AudioSourceID asid)
         {
-            CommandBuffer.AddSharedComponent(asid.HandleEntity, new AudioMuteRequest());
-            CommandBuffer.RemoveComponent<AudioMuteRequest>(asid.OriginalEntity);
-            CommandBuffer.RemoveComponent<AudioSourceID>(asid.OriginalEntity);
+            CommandBuffer.AddSharedComponent(asid.SourceEntity, new AudioMuteRequest());
+            CommandBuffer.RemoveComponent<AudioMuteRequest>(asid.GameEntity);
+            CommandBuffer.RemoveComponent<AudioSourceID>(asid.GameEntity);
         }
     }
     #endregion
@@ -29,9 +29,9 @@ public class CopyAudioPropertiesSystem : JobComponentSystem
         public EntityCommandBuffer.Concurrent CommandBuffer;
         public void Execute([ReadOnly]ref AudioSourceID asid)
         {
-            CommandBuffer.AddSharedComponent(asid.HandleEntity, new AudioStopRequest());
-            CommandBuffer.RemoveComponent<AudioStopRequest>(asid.OriginalEntity);
-            CommandBuffer.RemoveComponent<AudioSourceID>(asid.OriginalEntity);
+            CommandBuffer.AddSharedComponent(asid.SourceEntity, new AudioStopRequest());
+            CommandBuffer.RemoveComponent<AudioStopRequest>(asid.GameEntity);
+            CommandBuffer.RemoveComponent<AudioSourceID>(asid.GameEntity);
         }
     }
     #endregion
@@ -42,8 +42,8 @@ public class CopyAudioPropertiesSystem : JobComponentSystem
         public EntityCommandBuffer.Concurrent CommandBuffer;
         public void Execute([ReadOnly]ref AudioSourceID asid, [ReadOnly]ref AudioProperty_SpatialBlend spatialBlend)
         {
-            CommandBuffer.AddComponent(asid.HandleEntity, spatialBlend);
-            CommandBuffer.RemoveComponent<AudioProperty_SpatialBlend>(asid.OriginalEntity);
+            CommandBuffer.AddComponent(asid.SourceEntity, new AudioProperty_SpatialBlend(asid.SourceEntity, spatialBlend.Blend));
+            CommandBuffer.RemoveComponent<AudioProperty_SpatialBlend>(asid.GameEntity);
         }
     }
     #endregion
@@ -54,8 +54,8 @@ public class CopyAudioPropertiesSystem : JobComponentSystem
         public EntityCommandBuffer.Concurrent CommandBuffer;
         public void Execute([ReadOnly]ref AudioSourceID asid, [ReadOnly]ref AudioProperty_AudioClipID acid)
         {
-            CommandBuffer.AddComponent(asid.HandleEntity, acid);
-            CommandBuffer.RemoveComponent<AudioProperty_AudioClipID>(asid.OriginalEntity);
+            CommandBuffer.AddComponent(asid.SourceEntity, new AudioProperty_AudioClipID(asid.SourceEntity, acid.ID));
+            CommandBuffer.RemoveComponent<AudioProperty_AudioClipID>(asid.GameEntity);
         }
     }
     #endregion
@@ -66,8 +66,8 @@ public class CopyAudioPropertiesSystem : JobComponentSystem
         public EntityCommandBuffer.Concurrent CommandBuffer;
         public void Execute([ReadOnly]ref AudioSourceID asid, [ReadOnly]ref AudioProperty_StartTime startTime)
         {
-            CommandBuffer.AddComponent(asid.HandleEntity, startTime);
-            CommandBuffer.RemoveComponent<AudioProperty_StartTime>(asid.OriginalEntity);
+            CommandBuffer.AddComponent(asid.SourceEntity, new AudioProperty_StartTime(asid.SourceEntity, startTime.Time));
+            CommandBuffer.RemoveComponent<AudioProperty_StartTime>(asid.GameEntity);
         }
     }
     #endregion
@@ -78,8 +78,8 @@ public class CopyAudioPropertiesSystem : JobComponentSystem
         public EntityCommandBuffer.Concurrent CommandBuffer;
         public void Execute([ReadOnly]ref AudioSourceID asid, [ReadOnly]ref AudioProperty_Loop loop)
         {
-            CommandBuffer.AddComponent(asid.HandleEntity, loop);
-            CommandBuffer.RemoveComponent<AudioProperty_Loop>(asid.OriginalEntity);
+            CommandBuffer.AddComponent(asid.SourceEntity, new AudioProperty_Loop(asid.SourceEntity));
+            CommandBuffer.RemoveComponent<AudioProperty_Loop>(asid.GameEntity);
         }
     }
     #endregion
@@ -95,15 +95,14 @@ public class CopyAudioPropertiesSystem : JobComponentSystem
         var copyStartTimeJob = new CopyStartTimeJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
         var copyLoopJob = new CopyLoopJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
 
-        NativeArray<JobHandle> jobHandles = new NativeArray<JobHandle>(7, Allocator.Temp)
+        NativeArray<JobHandle> jobHandles = new NativeArray<JobHandle>(6, Allocator.Temp)
         {
-            [0] = inputDeps,
-            [1] = copyMuteRequestJob.Schedule(this, inputDeps),
-            [2] = copyStopRequestJob.Schedule(this, inputDeps),
-            [3] = copySpatialBlendJob.Schedule(this, inputDeps),
-            [4] = copyAudioClipIDJob.Schedule(this, inputDeps),
-            [5] = copyStartTimeJob.Schedule(this, inputDeps),
-            [6] = copyLoopJob.Schedule(this, inputDeps)
+            [0] = copyMuteRequestJob.Schedule(this, inputDeps),
+            [1] = copyStopRequestJob.Schedule(this, inputDeps),
+            [2] = copySpatialBlendJob.Schedule(this, inputDeps),
+            [3] = copyAudioClipIDJob.Schedule(this, inputDeps),
+            [4] = copyStartTimeJob.Schedule(this, inputDeps),
+            [5] = copyLoopJob.Schedule(this, inputDeps)
         };
 
         JobHandle combinedDependencies = JobHandle.CombineDependencies(jobHandles);

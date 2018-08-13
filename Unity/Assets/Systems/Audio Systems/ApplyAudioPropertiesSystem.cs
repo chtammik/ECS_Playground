@@ -6,8 +6,6 @@ using UnityEngine;
 [UpdateAfter(typeof(CopyAudioPropertiesSystem.CopyAudioPropertiesBarrier))]
 public class ApplyAudioPropertiesSystem : ComponentSystem
 {
-    EntityManager entityManager;
-
     struct SourceHandleGroup
     {
         public readonly int Length;
@@ -15,15 +13,10 @@ public class ApplyAudioPropertiesSystem : ComponentSystem
         public ComponentArray<AudioSource> Sources;
         [ReadOnly] public SharedComponentDataArray<AudioSourceClaimed> Claimeds;
         [ReadOnly] public ComponentDataArray<AudioSourceHandle> Handles;
-        [ReadOnly] public SubtractiveComponent<ReadyToPlay> ReadyToPlays;
+        [ReadOnly] public SubtractiveComponent<AudioReadyToPlay> ReadyToPlays;
         [ReadOnly] public SubtractiveComponent<AudioPlaying> PlayingTags;
     }
     [Inject] SourceHandleGroup sourceGroup;
-
-    protected override void OnStartRunning()
-    {
-        entityManager = BootstrapAudio.GetEntityManager();
-    }
 
     [Inject] ComponentDataFromEntity<AudioProperty_AudioClipID> AudioClip;
     [Inject] ComponentDataFromEntity<AudioProperty_SpatialBlend> AudioSpatialBlend;
@@ -36,7 +29,7 @@ public class ApplyAudioPropertiesSystem : ComponentSystem
             Entity entity = sourceGroup.Entities[i];
             AudioSource audioSource = sourceGroup.Sources[i];
             if (AudioClip.Exists(entity))
-                audioSource.clip = BootstrapAudio.GetClipList().clips[AudioClip[entity].ID];
+                audioSource.clip = BootstrapAudio.GetClipList().Clips[AudioClip[entity].ID];
                 
             if (AudioSpatialBlend.Exists(entity))
                 audioSource.spatialBlend = AudioSpatialBlend[entity].Blend;
@@ -47,7 +40,7 @@ public class ApplyAudioPropertiesSystem : ComponentSystem
                 audioSource.loop = false;
 
             //...
-            PostUpdateCommands.AddSharedComponent(entity, new ReadyToPlay());
+            PostUpdateCommands.AddSharedComponent(entity, new AudioReadyToPlay());
         }
     }
 }

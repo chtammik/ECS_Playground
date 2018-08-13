@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class BootstrapAudio : MonoBehaviour
 {
-    public int poolSize;
-    public AudioClipList ClipList;
-    static AudioClipList clipList;
-    static EntityManager entityManager;
-    static World audioWorld;
+    [SerializeField] int _poolSize;
+    [SerializeField] AudioClipList _clipList;
+    static AudioClipList s_clipList;
+    static EntityManager s_entityManager;
+    //static World s_audioWorld;
 
     void Awake()
     {
         //audioWorld = new World("AudioWorld");
         //entityManager = audioWorld.GetOrCreateManager<EntityManager>();
         //ScriptBehaviourUpdateOrder.UpdatePlayerLoop(audioWorld);
-        entityManager = World.Active.GetOrCreateManager<EntityManager>();
+        s_entityManager = World.Active.GetOrCreateManager<EntityManager>();
         Initialization_Pool();
         Initialization_SoundBank();
     }
@@ -24,15 +24,15 @@ public class BootstrapAudio : MonoBehaviour
     {
         GameObject sourcePrefab = new GameObject();
         AudioSource audioSource = sourcePrefab.AddComponent<AudioSource>();
-        ResetAudioSource(audioSource);
+        AudioService.ResetAudioSource(audioSource);
 
-        for (int i = 0; i < poolSize; i++)
+        for (int i = 0; i < _poolSize; i++)
         {
             GameObject sourceGO = Instantiate(sourcePrefab);
-            Entity entity = GameObjectEntity.AddToEntityManager(entityManager, sourceGO);
-            entityManager.AddComponentData(entity, new Position());
-            entityManager.AddComponentData(entity, new CopyTransformToGameObject());
-            entityManager.AddComponentData(entity, new AudioSourceHandle(entity, entity));
+            Entity entity = GameObjectEntity.AddToEntityManager(s_entityManager, sourceGO);
+            s_entityManager.AddComponentData(entity, new Position());
+            s_entityManager.AddComponentData(entity, new CopyTransformToGameObject());
+            s_entityManager.AddComponentData(entity, new AudioSourceHandle(entity, entity));
             sourceGO.name = "Source " + sourceGO.GetComponent<AudioSource>().GetInstanceID();
         }
   
@@ -41,26 +41,24 @@ public class BootstrapAudio : MonoBehaviour
 
     void Initialization_SoundBank()
     {
-        if (ClipList == null)
-            ClipList = FindObjectOfType<AudioClipList>();
-        clipList = ClipList;
+        if (_clipList == null)
+            _clipList = FindObjectOfType<AudioClipList>();
+        s_clipList = _clipList;
     }
 
     public static EntityManager GetEntityManager()
     {
-        return entityManager;
+        return s_entityManager;
     }
 
     public static AudioClipList GetClipList()
     {
-        return clipList;
+        return s_clipList;
     }
 
-    public static void ResetAudioSource(AudioSource audioSource)
+    public static float GetClipLength(int index)
     {
-        audioSource.clip = null;
-        audioSource.playOnAwake = false;
-        audioSource.loop = false;
+        return s_clipList.Lengths[index];
     }
 
 }

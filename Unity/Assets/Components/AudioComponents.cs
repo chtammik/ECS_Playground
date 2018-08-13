@@ -3,24 +3,13 @@ using Unity.Mathematics;
 
 public struct AudioSourceID : IComponentData
 {
-    public Entity OriginalEntity;
-    public Entity HandleEntity;
+    public Entity GameEntity;
+    public Entity SourceEntity;
 
-    public AudioSourceID(Entity originalEntity, Entity handleEntity)
+    public AudioSourceID(Entity carrierEntity, Entity handleEntity)
     {
-        OriginalEntity = originalEntity;
-        HandleEntity = handleEntity; //THIS LINE! TOOK ME FOREVER! GOODBYE DICTIONARY!
-    }
-}
-
-public enum PlaybackStateType { NeedSource, ReadyToPlay, Play, Mute, Stop }
-public struct PlaybackState : IComponentData
-{
-    public PlaybackStateType State;
-
-    public PlaybackState(PlaybackStateType state)
-    {
-        State = state;
+        GameEntity = carrierEntity;
+        SourceEntity = handleEntity; //THIS LINE! TOOK ME FOREVER! GOODBYE DICTIONARY!
     }
 }
 
@@ -35,105 +24,76 @@ public struct AudioPlayRequest : IComponentData
 }
 public struct AudioStopRequest : ISharedComponentData { }
 public struct AudioMuteRequest : ISharedComponentData { }
-public struct ReadyToPlay : ISharedComponentData { }
+public struct AudioReadyToPlay : ISharedComponentData { }
 public struct AudioPlaying : ISharedComponentData { }
-public struct AudioPlayingVirtually : ISharedComponentData { }
+
+public struct AudioPlayingVirtually : IComponentData
+{
+    public Entity Entity;
+
+    public AudioPlayingVirtually(Entity entity)
+    {
+        Entity = entity;
+    }
+}
 
 public struct AudioProperty_StartTime : IComponentData
 {
+    public Entity Entity;
     public double Time;
 
-    public AudioProperty_StartTime(double time)
+    public AudioProperty_StartTime(Entity entity, double time)
     {
+        Entity = entity;
         Time = time;
     }
 }
 
 public struct AudioProperty_AudioClipID : IComponentData
 {
+    public Entity Entity;
     public int ID;
 
-    public AudioProperty_AudioClipID(int id)
+    public AudioProperty_AudioClipID(Entity entity, int id)
     {
+        Entity = entity;
         ID = id;
     }
 }
 
 public struct AudioProperty_SpatialBlend : IComponentData
 {
+    public Entity Entity;
     public float Blend;
 
-    public AudioProperty_SpatialBlend(float blend)
+    public AudioProperty_SpatialBlend(Entity entity, float blend)
     {
+        Entity = entity;
         Blend = math.clamp(blend, 0, 1);
     }
 }
 
-public struct AudioProperty_Loop : IComponentData { }
+public struct AudioProperty_Loop : IComponentData
+{
+    public Entity Entity;
+    
+    public AudioProperty_Loop(Entity entity)
+    {
+        Entity = entity;
+    }
+}
 
 public struct AudioSourceHandle : IComponentData
 {
-    public Entity OriginalEntity;
-    public Entity HandleEntity;
+    public Entity GameEntity;
+    public Entity SourceEntity;
 
-    public AudioSourceHandle(Entity originalEntity, Entity handleEntity)
+    public AudioSourceHandle(Entity gameEntity, Entity sourceEntity)
     {
-        OriginalEntity = originalEntity;
-        HandleEntity = handleEntity;
+        GameEntity = gameEntity;
+        SourceEntity = sourceEntity;
     }
 }
 
 public struct AudioSourceClaimed : ISharedComponentData { }
-
-//public enum PlayType { NeedSource, ReadyToPlay, Play, Mute, Stop }
-//public enum VoiceStatusType { Real, Virtual, Zero }
-//public enum PriorityType { Low, Medium, High }
-//public struct AudioSourceID : IComponentData
-//{
-//    public Entity EntityID;
-//    public int ASID;
-//    public VoiceStatusType VoiceStatus;
-//    public PriorityType Priority;
-//    public PlayType PlayStatus;
-
-//    public AudioSourceID(Entity entity, int id)
-//    {
-//        EntityID = entity;
-//        ASID = id;
-//        Priority = priority;
-//        PlayStatus = status;
-
-//        if (status == PlayType.Mute || status == PlayType.NeedSource)
-//            VoiceStatus = VoiceStatusType.Virtual;
-//        else if (status == PlayType.Stop)
-//            VoiceStatus = VoiceStatusType.Zero;
-//        else
-//            VoiceStatus = VoiceStatusType.Real;
-//    }
-//}
-
-//public struct PlaySoundRequest : IComponentData
-//{
-//    public int AudioClipID;
-
-//    public PlaySoundRequest(int value)
-//    {
-//        AudioClipID = value;
-//    }
-//}
-
-//public struct StopSoundRequest : IComponentData { }
-//public struct MuteSoundRequest : IComponentData { }
-
-//public struct AudioProperty : IComponentData
-//{
-//    public double StartTime;
-//    public int AudioClipID;
-
-//    public AudioProperty(double startTime, int clipID)
-//    {
-//        StartTime = startTime;
-//        AudioClipID = clipID;
-//    }
-//}
 

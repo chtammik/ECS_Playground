@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 
+//TODO: Jobfy this.
 public class AudioSourcePositionSystem : ComponentSystem
 {
     struct ASIDGroup
@@ -19,7 +20,7 @@ public class AudioSourcePositionSystem : ComponentSystem
     {
         for (int i = 0; i < asidGroup.Length; i++)
         {
-            SourcePosition[asidGroup.ASIDs[i].HandleEntity] = asidGroup.Positions[i];
+            SourcePosition[asidGroup.ASIDs[i].SourceEntity] = asidGroup.Positions[i];
         }
     }
 }

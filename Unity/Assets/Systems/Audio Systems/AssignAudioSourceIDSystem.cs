@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using UnityEngine;
 
 [UpdateBefore(typeof(CopyAudioPropertiesSystem.CopyAudioPropertiesBarrier))]
-public class AudioPoolSystem : JobComponentSystem
+public class AssignAudioSourceIDSystem : JobComponentSystem
 {
     public class AssignSourceIDBarrier : BarrierSystem { }
 
@@ -33,9 +33,9 @@ public class AudioPoolSystem : JobComponentSystem
 
         public void Execute(int index)
         {
-            CommandBuffer.AddComponent(PlayRequests[index].Entity, new AudioSourceID(PlayRequests[index].Entity, SourceHandles[index].HandleEntity));
-            CommandBuffer.SetComponent(SourceHandles[index].HandleEntity, new AudioSourceHandle(PlayRequests[index].Entity, SourceHandles[index].HandleEntity));
-            CommandBuffer.AddSharedComponent(SourceHandles[index].HandleEntity, new AudioSourceClaimed());
+            CommandBuffer.AddComponent(PlayRequests[index].Entity, new AudioSourceID(PlayRequests[index].Entity, SourceHandles[index].SourceEntity));
+            CommandBuffer.SetComponent(SourceHandles[index].SourceEntity, new AudioSourceHandle(PlayRequests[index].Entity, SourceHandles[index].SourceEntity));
+            CommandBuffer.AddSharedComponent(SourceHandles[index].SourceEntity, new AudioSourceClaimed());
             CommandBuffer.RemoveComponent<AudioPlayRequest>(PlayRequests[index].Entity);
         }
     }
@@ -44,7 +44,7 @@ public class AudioPoolSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        int jobAmount = math.min(playRequestGroup.Length, sourceHandleGroup.Length);
+        int jobAmount = math.min(playRequestGroup.Length, sourceHandleGroup.Length); //always try to meet all the demands with all the available sources.
         var assignSourceIDJob = new AssignSourceIDJob
         {
             CommandBuffer = assignSourceIDBarrier.CreateCommandBuffer(),

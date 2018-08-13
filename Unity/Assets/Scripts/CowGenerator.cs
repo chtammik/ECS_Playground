@@ -8,40 +8,40 @@ using UnityEngine;
 
 public class CowGenerator : MonoBehaviour
 {
-    public int Count = 5;
-    public GameObject CowPrefab;
-    EntityManager entityManager;
-    static List<int> CowEntityIDs;
+    [SerializeField] int _count = 5;
+    [SerializeField] GameObject _cowPrefab;
+    EntityManager _entityManager;
+    static List<int> s_cowEntityIDs;
 
     void Awake()
     {
-        entityManager = World.Active.GetOrCreateManager<EntityManager>();
-        EntityArchetype CowArchetype = entityManager.CreateArchetype(
+        _entityManager = World.Active.GetOrCreateManager<EntityManager>();
+        EntityArchetype CowArchetype = _entityManager.CreateArchetype(
             ComponentType.Create<Position>(),
             ComponentType.Create<Moo>(),
             ComponentType.Create<TransformMatrix>(),
             ComponentType.Create<MeshInstanceRenderer>()
             );
-        var cowPrefab = Instantiate(CowPrefab);
+        var cowPrefab = Instantiate(_cowPrefab);
         MeshInstanceRenderer meshInstanceRenderer = cowPrefab.GetComponent<MeshInstanceRendererComponent>().Value;
         Destroy(cowPrefab);
 
-        CowEntityIDs = new List<int>(Count);
+        s_cowEntityIDs = new List<int>(_count);
 
-        for (int i = 0; i < Count; i++)
+        for (int i = 0; i < _count; i++)
         {
             float3 pos = new float3(-10f + 5f * i, 0f, 0f);
-            Entity cow = entityManager.CreateEntity(CowArchetype);
-            entityManager.SetComponentData(cow, new Position(pos));
-            entityManager.SetComponentData(cow, new Moo(MooType.StartMooing, cow));
-            entityManager.SetSharedComponentData(cow, meshInstanceRenderer);
-            CowEntityIDs.Add(cow.Index);
+            Entity cow = _entityManager.CreateEntity(CowArchetype);
+            _entityManager.SetComponentData(cow, new Position(pos));
+            _entityManager.SetComponentData(cow, new Moo(MooType.StartMooing, cow));
+            _entityManager.SetSharedComponentData(cow, meshInstanceRenderer);
+            s_cowEntityIDs.Add(cow.Index);
         }
     }
 
     public static KeyCode KeyCode_Moo(int entityIndex)
     {
-        int index = CowEntityIDs.IndexOf(entityIndex);
+        int index = s_cowEntityIDs.IndexOf(entityIndex);
         switch (index)
         {
             case 0:
@@ -61,7 +61,7 @@ public class CowGenerator : MonoBehaviour
 
     public static KeyCode KeyCode_Mute(int entityIndex)
     {
-        int index = CowEntityIDs.IndexOf(entityIndex);
+        int index = s_cowEntityIDs.IndexOf(entityIndex);
         switch (index)
         {
             case 0:
