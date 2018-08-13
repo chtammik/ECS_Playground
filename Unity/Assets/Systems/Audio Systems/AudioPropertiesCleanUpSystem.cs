@@ -10,6 +10,8 @@ using Unity.Collections;
 [UpdateBefore(typeof(AssignAudioSourceIDSystem.AssignSourceIDBarrier))]
 public class AudioPropertiesCleanUpSystem : JobComponentSystem
 {
+    NativeArray<JobHandle> jobHandles;
+
     public class AudioPropertiesCleanUpBarrier : BarrierSystem { }
 
     #region Start Time
@@ -65,6 +67,16 @@ public class AudioPropertiesCleanUpSystem : JobComponentSystem
 
     [Inject] AudioPropertiesCleanUpBarrier audioPropertiesCleanUpBarrier;
 
+    protected override void OnStartRunning()
+    {
+        jobHandles = new NativeArray<JobHandle>(4, Allocator.Persistent);
+    }
+
+    protected override void OnStopRunning()
+    {
+        jobHandles.Dispose();
+    }
+
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var startTimeCleanUpJob = new StartTimeCleanUpJob() { CommandBuffer = audioPropertiesCleanUpBarrier.CreateCommandBuffer() };
@@ -72,17 +84,11 @@ public class AudioPropertiesCleanUpSystem : JobComponentSystem
         var spatialBlendCleanUpJob = new SpatialBlendCleanUpJob() { CommandBuffer = audioPropertiesCleanUpBarrier.CreateCommandBuffer() };
         var loopCleanUpJob = new LoopCleanUpJob() { CommandBuffer = audioPropertiesCleanUpBarrier.CreateCommandBuffer() };
 
-        NativeArray<JobHandle> jobHandles = new NativeArray<JobHandle>(4, Allocator.Temp)
-        {
-            [0] = startTimeCleanUpJob.Schedule(this, inputDeps),
-            [1] = clipIDCleanUpJob.Schedule(this, inputDeps),
-            [2] = spatialBlendCleanUpJob.Schedule(this, inputDeps),
-            [3] = loopCleanUpJob.Schedule(this, inputDeps)
-        };
+        jobHandles[0] = startTimeCleanUpJob.Schedule(this, inputDeps);
+        jobHandles[1] = clipIDCleanUpJob.Schedule(this, inputDeps);
+        jobHandles[2] = spatialBlendCleanUpJob.Schedule(this, inputDeps);
+        jobHandles[3] = loopCleanUpJob.Schedule(this, inputDeps);
 
-        JobHandle combinedDependencies = JobHandle.CombineDependencies(jobHandles);
-        jobHandles.Dispose();
-
-        return combinedDependencies;
+        return JobHandle.CombineDependencies(jobHandles);
     }
 }
