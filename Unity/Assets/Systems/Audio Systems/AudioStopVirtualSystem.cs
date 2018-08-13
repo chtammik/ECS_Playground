@@ -31,7 +31,7 @@ public class AudioStopVirtualSystem : JobComponentSystem
 
         public void Execute([ReadOnly]ref AudioPlayingVirtually audioPlayingVirtually, [ReadOnly]ref AudioProperty_StartTime startTime, [ReadOnly]ref AudioProperty_AudioClipID audioClip)
         {
-            if (AudioSettings.dspTime - startTime.Time > BootstrapAudio.GetClipLength(audioClip.ID)) 
+            if (AudioSettings.dspTime - startTime.Time > AudioService.GetClipLength(audioClip.ID)) 
                 CommandBuffer.AddSharedComponent(audioPlayingVirtually.Entity, new AudioStopRequest());
         }
     }

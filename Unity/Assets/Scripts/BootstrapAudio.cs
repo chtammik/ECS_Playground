@@ -6,7 +6,8 @@ public class BootstrapAudio : MonoBehaviour
 {
     [SerializeField] int _poolSize;
     [SerializeField] AudioClipList _clipList;
-    static AudioClipList s_clipList;
+    AudioService _audioService;
+
     static EntityManager s_entityManager;
     //static World s_audioWorld;
 
@@ -43,22 +44,12 @@ public class BootstrapAudio : MonoBehaviour
     {
         if (_clipList == null)
             _clipList = FindObjectOfType<AudioClipList>();
-        s_clipList = _clipList;
+        _audioService = new AudioService(_clipList);
     }
 
     public static EntityManager GetEntityManager()
     {
         return s_entityManager;
-    }
-
-    public static AudioClipList GetClipList()
-    {
-        return s_clipList;
-    }
-
-    public static float GetClipLength(int index)
-    {
-        return s_clipList.Lengths[index];
     }
 
 }

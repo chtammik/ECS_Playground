@@ -29,7 +29,7 @@ public class ApplyAudioPropertiesSystem : ComponentSystem
             Entity entity = sourceGroup.Entities[i];
             AudioSource audioSource = sourceGroup.Sources[i];
             if (AudioClip.Exists(entity))
-                audioSource.clip = BootstrapAudio.GetClipList().Clips[AudioClip[entity].ID];
+                audioSource.clip = AudioService.GetAudioClip(AudioClip[entity].ID);
                 
             if (AudioSpatialBlend.Exists(entity))
                 audioSource.spatialBlend = AudioSpatialBlend[entity].Blend;
