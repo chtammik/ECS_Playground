@@ -36,9 +36,9 @@ public class PerformMusic : MonoBehaviour
         if (Input.GetKeyDown(_playAndStopKeyCode))
         {
             if (_performing)
-                _audioOwner.Play();
-            else
                 _audioOwner.Stop();
+            else
+                _audioOwner.Play();
         }
 
         if (Input.GetKeyDown(_playAndMuteKeyCode))
