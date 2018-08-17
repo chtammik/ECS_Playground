@@ -6,12 +6,16 @@ public class BootstrapAudio : MonoBehaviour
 {
     [SerializeField] int _poolSize;
     [SerializeField] AudioClipList _clipList;
-    AudioService _audioService;
-
+    
     static EntityManager s_entityManager;
     //static World s_audioWorld;
 
-    void Awake()
+    public delegate void BootstrapMessage();
+    public static event BootstrapMessage OnAudioServiceInitialized;
+    static bool s_audioServiceInitialized;
+    public static bool IfAudioServiceInitialized() { return s_audioServiceInitialized; }
+
+    void Start()
     {
         //audioWorld = new World("AudioWorld");
         //entityManager = audioWorld.GetOrCreateManager<EntityManager>();
@@ -33,23 +37,36 @@ public class BootstrapAudio : MonoBehaviour
             Entity entity = GameObjectEntity.AddToEntityManager(s_entityManager, sourceGO);
             s_entityManager.AddComponentData(entity, new Position());
             s_entityManager.AddComponentData(entity, new CopyTransformToGameObject());
-            s_entityManager.AddComponentData(entity, new AudioSourceHandle(entity, entity));
+            s_entityManager.AddComponentData(entity, new AudioSourceHandle(entity));
             sourceGO.name = "Source " + sourceGO.GetComponent<AudioSource>().GetInstanceID();
         }
-  
+
         Destroy(sourcePrefab);
     }
 
-    void Initialization_SoundBank()
+    void Initialization_SoundBank() //TODO: make sound banks able to load and unload.
     {
         if (_clipList == null)
             _clipList = FindObjectOfType<AudioClipList>();
-        _audioService = new AudioService(_clipList);
+        CreateAudioService();
     }
 
     public static EntityManager GetEntityManager()
     {
         return s_entityManager;
+    }
+
+    void CreateAudioService()
+    {
+        AudioService.Initialize(_clipList, s_entityManager);
+        OnAudioServiceInitialized();
+        OnAudioServiceInitialized = null; //clear all the subscribers because the AudioService initialization only happpens once.
+        s_audioServiceInitialized = true;
+    }
+
+    void OnDestroy()
+    {
+        OnAudioServiceInitialized = null;
     }
 
 }

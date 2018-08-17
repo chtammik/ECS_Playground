@@ -1,26 +1,28 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 //Non-Job version
 public class AudioSourcePositionSystem : ComponentSystem
 {
-    struct ASIDGroup
+    struct RealVoiceGroup
     {
         public readonly int Length;
-        [ReadOnly] public ComponentDataArray<Position> Positions;
-        [ReadOnly] public ComponentDataArray<AudioSourceID> ASIDs;
+        [ReadOnly] public ComponentDataArray<RealVoice> RealVoices;
+        [ReadOnly] public ComponentDataArray<VoiceHandle> VoiceHandles;
     }
-    [Inject] ASIDGroup asidGroup;
+    [Inject] RealVoiceGroup _realVoiceGroup;
 
-    [Inject] ComponentDataFromEntity<Position> SourcePosition;
+    [Inject] ComponentDataFromEntity<Position> _sourcePosition;
+    [Inject] ComponentDataFromEntity<Position> _gameEntityPosition;
 
     protected override void OnUpdate()
     {
-        for (int i = 0; i < asidGroup.Length; i++)
+        for (int i = 0; i < _realVoiceGroup.Length; i++)
         {
-            SourcePosition[asidGroup.ASIDs[i].SourceEntity] = asidGroup.Positions[i];
+            _sourcePosition[_realVoiceGroup.RealVoices[i].SourceEntity] = _gameEntityPosition[_realVoiceGroup.VoiceHandles[i].GameEntity];
         }
     }
 }
@@ -28,13 +30,13 @@ public class AudioSourcePositionSystem : ComponentSystem
 //IJob version, actually way slower.
 //public class AudioSourcePositionSystem : JobComponentSystem
 //{
-//    struct ASIDGroup
+//    struct VoiceGroup
 //    {
 //        public readonly int Length;
 //        [ReadOnly] public ComponentDataArray<Position> Positions;
-//        [ReadOnly] public ComponentDataArray<AudioSourceID> ASIDs;
+//        [ReadOnly] public ComponentDataArray<Voice> Voices;
 //    }
-//    [Inject] ASIDGroup asidGroup;
+//    [Inject] VoiceGroup voiceGroup;
 
 //    [Inject] ComponentDataFromEntity<Position> sourcePosition;
 
@@ -51,14 +53,14 @@ public class AudioSourcePositionSystem : ComponentSystem
 
 //    protected override JobHandle OnUpdate(JobHandle inputDeps)
 //    {
-//        NativeArray<JobHandle> jobHandles = new NativeArray<JobHandle>(asidGroup.Length, Allocator.Temp);
+//        NativeArray<JobHandle> jobHandles = new NativeArray<JobHandle>(voiceGroup.Length, Allocator.Temp);
 
-//        for (int i = 0; i < asidGroup.Length; i++)
+//        for (int i = 0; i < voiceGroup.Length; i++)
 //        {
 //            var audioSourcePositionJob = new AudioSourcePositionJob
 //            {
-//                SourcePosition = sourcePosition[asidGroup.ASIDs[i].SourceEntity],
-//                ASIDPosition = asidGroup.Positions[i]
+//                SourcePosition = sourcePosition[voiceGroup.Voices[i].SourceEntity],
+//                ASIDPosition = voiceGroup.Positions[i]
 //            };
 //            jobHandles[i] = audioSourcePositionJob.Schedule(inputDeps);
 //        }

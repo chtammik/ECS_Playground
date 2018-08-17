@@ -13,17 +13,17 @@ public class AssignAudioSourceIDSystem : JobComponentSystem
     {
         public readonly int Length;
         [ReadOnly] public ComponentDataArray<AudioPlayRequest> PlayRequests;
-        [ReadOnly] public SubtractiveComponent<AudioSourceID> ASIDs;
+        [ReadOnly] public SubtractiveComponent<RealVoice> No_RealVoice;
     }
-    [Inject] PlayRequestGroup playRequestGroup;
+    [Inject] PlayRequestGroup _playRequestGroup;
 
-    struct SourceHandleGroup //all vacant sources
+    struct SourceHandleGroup //all vacant AudioSources
     {
         public readonly int Length;
         [ReadOnly] public ComponentDataArray<AudioSourceHandle> SourceHandles;
-        [ReadOnly] public SubtractiveComponent<AudioSourceClaimed> ClaimedTags;
+        [ReadOnly] public SubtractiveComponent<ClaimedByVoice> No_Claimed;
     }
-    [Inject] SourceHandleGroup sourceHandleGroup;
+    [Inject] SourceHandleGroup _sourceHandleGroup;
 
     struct AssignSourceIDJob : IJobParallelFor
     {
@@ -33,23 +33,28 @@ public class AssignAudioSourceIDSystem : JobComponentSystem
 
         public void Execute(int index)
         {
-            CommandBuffer.AddComponent(PlayRequests[index].Entity, new AudioSourceID(PlayRequests[index].Entity, SourceHandles[index].SourceEntity));
-            CommandBuffer.SetComponent(SourceHandles[index].SourceEntity, new AudioSourceHandle(PlayRequests[index].Entity, SourceHandles[index].SourceEntity));
-            CommandBuffer.AddSharedComponent(SourceHandles[index].SourceEntity, new AudioSourceClaimed());
-            CommandBuffer.RemoveComponent<AudioPlayRequest>(PlayRequests[index].Entity);
+            //a Voice is hooked with a new AudioSource.
+            CommandBuffer.AddComponent(PlayRequests[index].VoiceEntity, new RealVoice(PlayRequests[index].VoiceEntity, SourceHandles[index].SourceEntity));
+            CommandBuffer.SetComponent(SourceHandles[index].SourceEntity, new AudioSourceHandle(SourceHandles[index].SourceEntity));
+
+            //the vacant AudioSource is now claimed.
+            CommandBuffer.AddComponent(SourceHandles[index].SourceEntity, new ClaimedByVoice(PlayRequests[index].VoiceEntity));
+
+            //the game entity is no longer requiring to obtain a voice.
+            CommandBuffer.RemoveComponent<AudioPlayRequest>(PlayRequests[index].VoiceEntity);
         }
     }
 
-    [Inject] AssignSourceIDBarrier assignSourceIDBarrier;
+    [Inject] AssignSourceIDBarrier _assignSourceIDBarrier;
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        int jobAmount = math.min(playRequestGroup.Length, sourceHandleGroup.Length); //always try to meet all the demands with all the available sources.
+        int jobAmount = math.min(_playRequestGroup.Length, _sourceHandleGroup.Length); //always try to meet all the demands with all the available sources.
         var assignSourceIDJob = new AssignSourceIDJob
         {
-            CommandBuffer = assignSourceIDBarrier.CreateCommandBuffer(),
-            PlayRequests = playRequestGroup.PlayRequests,
-            SourceHandles = sourceHandleGroup.SourceHandles
+            CommandBuffer = _assignSourceIDBarrier.CreateCommandBuffer(),
+            PlayRequests = _playRequestGroup.PlayRequests,
+            SourceHandles = _sourceHandleGroup.SourceHandles
         };
         JobHandle assignSourceIDJH = assignSourceIDJob.Schedule(jobAmount, 64, inputDeps);
 
@@ -64,7 +69,7 @@ public class AssignAudioSourceIDSystem : JobComponentSystem
 //        public readonly int Length;
 //        public EntityArray Entities;
 //        [ReadOnly] public ComponentDataArray<PlaySoundRequest> PlayRequests;
-//        public SubtractiveComponent<AudioSourceID> ASIDs;
+//        public SubtractiveComponent<AudioSourceID> Voices;
 //    }
 
 //    [Inject] PlayRequestGroup playRequestGroup;
@@ -88,7 +93,7 @@ public class AssignAudioSourceIDSystem : JobComponentSystem
 //            {
 //                int HandleIndex = HandleAmount - 1;
 //                Entity entity = playRequestGroup.Entities[i];
-//                PostUpdateCommands.AddComponent(entity, new AudioSourceID(entity, sourceHandleGroup.SourceHandles[HandleIndex].ASID));
+//                PostUpdateCommands.AddComponent(entity, new AudioSourceID(entity, sourceHandleGroup.SourceHandles[HandleIndex].Voice));
 //                PostUpdateCommands.RemoveComponent<PlaySoundRequest>(entity);
 //                PostUpdateCommands.AddComponent(entity, new ReadyToPlay());
 //                PostUpdateCommands.AddComponent(sourceHandleGroup.Entities[HandleIndex], new AudioSourceClaimed());

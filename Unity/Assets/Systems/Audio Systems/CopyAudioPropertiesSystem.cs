@@ -6,114 +6,114 @@ using Unity.Jobs;
 [UpdateAfter(typeof(AssignAudioSourceIDSystem.AssignSourceIDBarrier))]
 public class CopyAudioPropertiesSystem : JobComponentSystem
 {
-    NativeArray<JobHandle> jobHandles;
+    NativeArray<JobHandle> _jobHandles;
 
     public class CopyAudioPropertiesBarrier : BarrierSystem { }
 
     #region CopyMuteRequestJob
     [RequireComponentTag(typeof(AudioMuteRequest))]
-    struct CopyMuteRequestJob : IJobProcessComponentData<AudioSourceID>
+    struct CopyMuteRequestJob : IJobProcessComponentData<RealVoice>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
-        public void Execute([ReadOnly]ref AudioSourceID asid)
+        public void Execute([ReadOnly]ref RealVoice realVoice)
         {
-            CommandBuffer.AddSharedComponent(asid.SourceEntity, new AudioMuteRequest());
-            CommandBuffer.RemoveComponent<AudioMuteRequest>(asid.GameEntity);
-            CommandBuffer.RemoveComponent<AudioSourceID>(asid.GameEntity);
+            CommandBuffer.AddSharedComponent(realVoice.SourceEntity, new AudioMuteRequest());
+            CommandBuffer.RemoveComponent<AudioMuteRequest>(realVoice.VoiceEntity);
+            CommandBuffer.RemoveComponent<RealVoice>(realVoice.VoiceEntity);
         }
     }
     #endregion
 
     #region CopyStopRequestJob
     [RequireComponentTag(typeof(AudioStopRequest))]
-    struct CopyStopRequestJob : IJobProcessComponentData<AudioSourceID>
+    struct CopyStopRequestJob : IJobProcessComponentData<RealVoice>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
-        public void Execute([ReadOnly]ref AudioSourceID asid)
+        public void Execute([ReadOnly]ref RealVoice realVoice)
         {
-            CommandBuffer.AddSharedComponent(asid.SourceEntity, new AudioStopRequest());
-            CommandBuffer.RemoveComponent<AudioStopRequest>(asid.GameEntity);
-            CommandBuffer.RemoveComponent<AudioSourceID>(asid.GameEntity);
+            CommandBuffer.AddSharedComponent(realVoice.SourceEntity, new AudioStopRequest());
+            CommandBuffer.RemoveComponent<AudioStopRequest>(realVoice.VoiceEntity);
+            CommandBuffer.RemoveComponent<RealVoice>(realVoice.VoiceEntity);
+        }
+    }
+    #endregion
+
+    #region CopyTimeOnPlayJob
+    struct CopyTimeOnPlayJob : IJobProcessComponentData<RealVoice, DSPTimeOnPlay>
+    {
+        public EntityCommandBuffer.Concurrent CommandBuffer;
+        public void Execute([ReadOnly]ref RealVoice realVoice, [ReadOnly]ref DSPTimeOnPlay timeOnPlay)
+        {
+            CommandBuffer.AddComponent(realVoice.SourceEntity, new DSPTimeOnPlay(realVoice.SourceEntity, timeOnPlay.Time));
+            CommandBuffer.RemoveComponent<DSPTimeOnPlay>(realVoice.VoiceEntity);
         }
     }
     #endregion
 
     #region CopySpatialBlendJob
-    struct CopySpatialBlendJob : IJobProcessComponentData<AudioSourceID, AudioProperty_SpatialBlend>
+    struct CopySpatialBlendJob : IJobProcessComponentData<RealVoice, AudioProperty_SpatialBlend>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
-        public void Execute([ReadOnly]ref AudioSourceID asid, [ReadOnly]ref AudioProperty_SpatialBlend spatialBlend)
+        public void Execute([ReadOnly]ref RealVoice realVoice, [ReadOnly]ref AudioProperty_SpatialBlend spatialBlend)
         {
-            CommandBuffer.AddComponent(asid.SourceEntity, new AudioProperty_SpatialBlend(asid.SourceEntity, spatialBlend.Blend));
-            CommandBuffer.RemoveComponent<AudioProperty_SpatialBlend>(asid.GameEntity);
+            CommandBuffer.AddComponent(realVoice.SourceEntity, new AudioProperty_SpatialBlend(realVoice.SourceEntity, spatialBlend.Blend));
+            CommandBuffer.RemoveComponent<AudioProperty_SpatialBlend>(realVoice.VoiceEntity);
         }
     }
     #endregion
 
     #region CopyAudioClipIDJob
-    struct CopyAudioClipIDJob : IJobProcessComponentData<AudioSourceID, AudioProperty_AudioClipID>
+    struct CopyAudioClipIDJob : IJobProcessComponentData<RealVoice, AudioProperty_AudioClipID>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
-        public void Execute([ReadOnly]ref AudioSourceID asid, [ReadOnly]ref AudioProperty_AudioClipID acid)
+        public void Execute([ReadOnly]ref RealVoice realVoice, [ReadOnly]ref AudioProperty_AudioClipID acid)
         {
-            CommandBuffer.AddComponent(asid.SourceEntity, new AudioProperty_AudioClipID(asid.SourceEntity, acid.ID));
-            CommandBuffer.RemoveComponent<AudioProperty_AudioClipID>(asid.GameEntity);
-        }
-    }
-    #endregion
-
-    #region CopyStartTimeJob
-    struct CopyStartTimeJob : IJobProcessComponentData<AudioSourceID, AudioProperty_StartTime>
-    {
-        public EntityCommandBuffer.Concurrent CommandBuffer;
-        public void Execute([ReadOnly]ref AudioSourceID asid, [ReadOnly]ref AudioProperty_StartTime startTime)
-        {
-            CommandBuffer.AddComponent(asid.SourceEntity, new AudioProperty_StartTime(asid.SourceEntity, startTime.Time));
-            CommandBuffer.RemoveComponent<AudioProperty_StartTime>(asid.GameEntity);
+            CommandBuffer.AddComponent(realVoice.SourceEntity, new AudioProperty_AudioClipID(realVoice.SourceEntity, acid.ID));
+            CommandBuffer.RemoveComponent<AudioProperty_AudioClipID>(realVoice.VoiceEntity);
         }
     }
     #endregion
 
     #region CopyLoopJob
-    struct CopyLoopJob : IJobProcessComponentData<AudioSourceID, AudioProperty_Loop>
+    struct CopyLoopJob : IJobProcessComponentData<RealVoice, AudioProperty_Loop>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
-        public void Execute([ReadOnly]ref AudioSourceID asid, [ReadOnly]ref AudioProperty_Loop loop)
+        public void Execute([ReadOnly]ref RealVoice realVoice, [ReadOnly]ref AudioProperty_Loop loop)
         {
-            CommandBuffer.AddComponent(asid.SourceEntity, new AudioProperty_Loop(asid.SourceEntity));
-            CommandBuffer.RemoveComponent<AudioProperty_Loop>(asid.GameEntity);
+            CommandBuffer.AddComponent(realVoice.SourceEntity, new AudioProperty_Loop(realVoice.SourceEntity));
+            CommandBuffer.RemoveComponent<AudioProperty_Loop>(realVoice.VoiceEntity);
         }
     }
     #endregion
 
-    [Inject] CopyAudioPropertiesBarrier copyAudioPropertiesBarrier;
-
     protected override void OnStartRunning()
     {
-        jobHandles = new NativeArray<JobHandle>(6, Allocator.Persistent);
+        _jobHandles = new NativeArray<JobHandle>(6, Allocator.Persistent);
     }
 
     protected override void OnStopRunning()
     {
-        jobHandles.Dispose();
+        _jobHandles.Dispose();
     }
+
+    [Inject] CopyAudioPropertiesBarrier copyAudioPropertiesBarrier;
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var copyMuteRequestJob = new CopyMuteRequestJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
         var copyStopRequestJob = new CopyStopRequestJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
+        var copyTimeOnPlayJob = new CopyTimeOnPlayJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
         var copySpatialBlendJob = new CopySpatialBlendJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
         var copyAudioClipIDJob = new CopyAudioClipIDJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
-        var copyStartTimeJob = new CopyStartTimeJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
         var copyLoopJob = new CopyLoopJob() { CommandBuffer = copyAudioPropertiesBarrier.CreateCommandBuffer() };
 
-        jobHandles[0] = copyMuteRequestJob.Schedule(this, inputDeps);
-        jobHandles[1] = copyStopRequestJob.Schedule(this, inputDeps);
-        jobHandles[2] = copySpatialBlendJob.Schedule(this, inputDeps);
-        jobHandles[3] = copyAudioClipIDJob.Schedule(this, inputDeps);
-        jobHandles[4] = copyStartTimeJob.Schedule(this, inputDeps);
-        jobHandles[5] = copyLoopJob.Schedule(this, inputDeps);
+        _jobHandles[0] = copyMuteRequestJob.Schedule(this, inputDeps);
+        _jobHandles[1] = copyStopRequestJob.Schedule(this, inputDeps);
+        _jobHandles[2] = copyTimeOnPlayJob.Schedule(this, inputDeps);
+        _jobHandles[3] = copySpatialBlendJob.Schedule(this, inputDeps);
+        _jobHandles[4] = copyAudioClipIDJob.Schedule(this, inputDeps);
+        _jobHandles[5] = copyLoopJob.Schedule(this, inputDeps);
 
-        return JobHandle.CombineDependencies(jobHandles);
+        return JobHandle.CombineDependencies(_jobHandles);
     }
 }

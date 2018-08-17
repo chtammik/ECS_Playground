@@ -9,39 +9,43 @@ public class AudioStopVirtualSystem : JobComponentSystem
 {
     public class StopVirtualBarrier : BarrierSystem { }
 
-    [RequireComponentTag(typeof(AudioPlayingVirtually), typeof(AudioStopRequest))]
-    [RequireSubtractiveComponent(typeof(AudioSourceID))]
+    //Stop virtual voices that already have StopSoundRequest on it, then remove the StopSoundRequest.
+    [RequireComponentTag(typeof(VirtualVoice), typeof(AudioStopRequest), typeof(VoiceHandle))]
+    [RequireSubtractiveComponent(typeof(RealVoice))]
     struct StopVirtualJob : IJobProcessComponentData<AudioPlayRequest>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         public void Execute([ReadOnly]ref AudioPlayRequest audioPlayRequest)
         {
-            CommandBuffer.RemoveComponent<AudioPlayRequest>(audioPlayRequest.Entity);
-            CommandBuffer.RemoveComponent<AudioStopRequest>(audioPlayRequest.Entity);
-            CommandBuffer.RemoveComponent<AudioPlayingVirtually>(audioPlayRequest.Entity);
+            Entity voiceEntity = audioPlayRequest.VoiceEntity;
+            CommandBuffer.RemoveComponent<AudioStopRequest>(voiceEntity);
+            CommandBuffer.RemoveComponent<VirtualVoice>(voiceEntity);
+            CommandBuffer.AddComponent(voiceEntity, new AudioMessage_Stopped(voiceEntity));
+            CommandBuffer.RemoveComponent<AudioPlayRequest>(voiceEntity);
         }
     }
 
-    //The virtual groups also need to stop when done playing.
-    [RequireSubtractiveComponent(typeof(AudioSourceID), typeof(AudioStopRequest), typeof(AudioProperty_Loop))]
-    struct StopVirtualDonePlayingJob : IJobProcessComponentData<AudioPlayingVirtually, AudioProperty_StartTime, AudioProperty_AudioClipID>
+    //The virtual groups need to stop when done playing.
+    [RequireComponentTag(typeof(VoiceHandle))]
+    [RequireSubtractiveComponent(typeof(RealVoice), typeof(AudioStopRequest), typeof(AudioProperty_Loop))]
+    struct StopVirtualDonePlayingJob : IJobProcessComponentData<VirtualVoice, DSPTimeOnPlay, AudioProperty_AudioClipID>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        public void Execute([ReadOnly]ref AudioPlayingVirtually audioPlayingVirtually, [ReadOnly]ref AudioProperty_StartTime startTime, [ReadOnly]ref AudioProperty_AudioClipID audioClip)
+        public void Execute([ReadOnly]ref VirtualVoice audioPlayingVirtually, [ReadOnly]ref DSPTimeOnPlay timeOnPlay, [ReadOnly]ref AudioProperty_AudioClipID audioClip)
         {
-            if (AudioSettings.dspTime - startTime.Time > AudioService.GetClipLength(audioClip.ID)) 
-                CommandBuffer.AddSharedComponent(audioPlayingVirtually.Entity, new AudioStopRequest());
+            if (AudioSettings.dspTime - timeOnPlay.Time > AudioService.GetClipLength(audioClip.ID)) 
+                CommandBuffer.AddSharedComponent(audioPlayingVirtually.VoiceEntity, new AudioStopRequest());
         }
     }
 
-    [Inject] StopVirtualBarrier stopVirtualBarrier;
+    [Inject] StopVirtualBarrier _stopVirtualBarrier;
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var stopVirtualJob = new StopVirtualJob { CommandBuffer = stopVirtualBarrier.CreateCommandBuffer() };
-        var stopVirtualDonePlayingJob = new StopVirtualDonePlayingJob { CommandBuffer = stopVirtualBarrier.CreateCommandBuffer() };
+        var stopVirtualJob = new StopVirtualJob { CommandBuffer = _stopVirtualBarrier.CreateCommandBuffer() };
+        var stopVirtualDonePlayingJob = new StopVirtualDonePlayingJob { CommandBuffer = _stopVirtualBarrier.CreateCommandBuffer() };
         return JobHandle.CombineDependencies(stopVirtualJob.Schedule(this, 64, inputDeps), stopVirtualDonePlayingJob.Schedule(this, 64, inputDeps));
     }
 }

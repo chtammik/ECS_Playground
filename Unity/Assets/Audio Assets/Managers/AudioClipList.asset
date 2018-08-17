@@ -8,12 +8,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 409179bb853f2334ba6f5b679e6fed1c, type: 3}
+  m_Script: {fileID: 11500000, guid: 8c5b20a0a80d6134ab00ecbdacbcdd61, type: 3}
   m_Name: AudioClipList
   m_EditorClassIdentifier: 
-  clips:
+  _clips:
   - {fileID: 8300000, guid: 3d573b1c1e982be40a4f9dfda66ea43f, type: 3}
   - {fileID: 8300000, guid: f84a783ee6b285e44bde3686f31c5576, type: 3}
   - {fileID: 8300000, guid: 85ec3fb2af5a7d545bfd677e01ae3d7d, type: 3}
   - {fileID: 8300000, guid: b4d38a3e178b9f84ab37ea6849ec0a5d, type: 3}
   - {fileID: 8300000, guid: f0b4ad71f18407d4983342b0c210edec, type: 3}
+  - {fileID: 8300000, guid: ed9ecde78da4255449b36ce6ead921ee, type: 3}
+  - {fileID: 8300000, guid: 0a36f648fc705ae4a977a223adecab30, type: 3}
+  - {fileID: 8300000, guid: 4c1dc5d7cb1ecff4bb249be92ddcefa5, type: 3}
+  - {fileID: 8300000, guid: f97e9fc339bc598459d6a20fb1499b2e, type: 3}

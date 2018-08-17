@@ -1,48 +1,81 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
-public struct AudioSourceID : IComponentData
+public struct VoiceHandle : IComponentData
 {
     public Entity GameEntity;
+    public Entity VoiceEntity;
+    
+    public VoiceHandle(Entity gameEntity, Entity voiceEntity)
+    {
+        GameEntity = gameEntity;
+        VoiceEntity = voiceEntity;
+    }
+}
+
+public struct RealVoice : IComponentData
+{
+    public Entity VoiceEntity;
     public Entity SourceEntity;
 
-    public AudioSourceID(Entity carrierEntity, Entity handleEntity)
+    public RealVoice(Entity voiceEntity, Entity sourceEntity)
     {
-        GameEntity = carrierEntity;
-        SourceEntity = handleEntity; //THIS LINE! TOOK ME FOREVER! GOODBYE DICTIONARY!
+        VoiceEntity = voiceEntity;
+        SourceEntity = sourceEntity; //THIS LINE! TOOK ME FOREVER! GOODBYE DICTIONARY!
+    }
+}
+
+public struct VirtualVoice : IComponentData
+{
+    public Entity VoiceEntity;
+
+    public VirtualVoice(Entity voiceEntity)
+    {
+        VoiceEntity = voiceEntity;
+    }
+}
+
+public struct AudioSourceHandle : IComponentData
+{
+    public Entity SourceEntity;
+
+    public AudioSourceHandle(Entity sourceEntity)
+    {
+        SourceEntity = sourceEntity;
+    }
+}
+
+public struct ClaimedByVoice : IComponentData
+{
+    public Entity VocieEntity;
+
+    public ClaimedByVoice(Entity voiceEntity)
+    {
+        VocieEntity = voiceEntity;
     }
 }
 
 public struct AudioPlayRequest : IComponentData
 {
-    public Entity Entity;
+    public Entity VoiceEntity;
 
-    public AudioPlayRequest(Entity entity)
+    public AudioPlayRequest(Entity voiceEntity)
     {
-        Entity = entity;
+        VoiceEntity = voiceEntity;
     }
 }
 public struct AudioStopRequest : ISharedComponentData { }
 public struct AudioMuteRequest : ISharedComponentData { }
 public struct AudioReadyToPlay : ISharedComponentData { }
-public struct AudioPlaying : ISharedComponentData { }
+public struct AudioPlaying : ISharedComponentData { } //different from RealVoice, which is on the voice entity, AudioPlaying is on the source entity.
 
-public struct AudioPlayingVirtually : IComponentData
-{
-    public Entity Entity;
-
-    public AudioPlayingVirtually(Entity entity)
-    {
-        Entity = entity;
-    }
-}
-
-public struct AudioProperty_StartTime : IComponentData
+public struct DSPTimeOnPlay : IComponentData
 {
     public Entity Entity;
     public double Time;
 
-    public AudioProperty_StartTime(Entity entity, double time)
+    public DSPTimeOnPlay(Entity entity, double time)
     {
         Entity = entity;
         Time = time;
@@ -76,24 +109,51 @@ public struct AudioProperty_SpatialBlend : IComponentData
 public struct AudioProperty_Loop : IComponentData
 {
     public Entity Entity;
-    
+
     public AudioProperty_Loop(Entity entity)
     {
         Entity = entity;
     }
 }
 
-public struct AudioSourceHandle : IComponentData
+public struct AudioMessage_Played : IComponentData
 {
-    public Entity GameEntity;
-    public Entity SourceEntity;
+    public Entity VoiceEntity;
 
-    public AudioSourceHandle(Entity gameEntity, Entity sourceEntity)
+    public AudioMessage_Played(Entity voiceEntity)
     {
-        GameEntity = gameEntity;
-        SourceEntity = sourceEntity;
+        VoiceEntity = voiceEntity;
     }
 }
 
-public struct AudioSourceClaimed : ISharedComponentData { }
+public struct AudioMessage_Stopped : IComponentData
+{
+    public Entity VoiceEntity;
+
+    public AudioMessage_Stopped(Entity voiceEntity)
+    {
+        VoiceEntity = voiceEntity;
+    }
+}
+
+public struct AudioMessage_Muted : IComponentData
+{
+    public Entity VoiceEntity;
+
+    public AudioMessage_Muted(Entity voiceEntity)
+    {
+        VoiceEntity = voiceEntity;
+    }
+}
+
+public struct AudioMessage_Unmuted : IComponentData
+{
+    public Entity VoiceEntity;
+
+    public AudioMessage_Unmuted(Entity voiceEntity)
+    {
+        VoiceEntity = voiceEntity;
+    }
+}
+
 

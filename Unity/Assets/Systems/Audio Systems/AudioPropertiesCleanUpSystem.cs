@@ -10,25 +10,25 @@ using Unity.Collections;
 [UpdateBefore(typeof(AssignAudioSourceIDSystem.AssignSourceIDBarrier))]
 public class AudioPropertiesCleanUpSystem : JobComponentSystem
 {
-    NativeArray<JobHandle> jobHandles;
+    NativeArray<JobHandle> _jobHandles;
 
     public class AudioPropertiesCleanUpBarrier : BarrierSystem { }
 
-    #region Start Time
-    [RequireSubtractiveComponent(typeof(AudioPlaying), typeof(AudioPlayingVirtually))]
-    struct StartTimeCleanUpJob : IJobProcessComponentData<AudioProperty_StartTime>
+    #region Time On Play
+    [RequireSubtractiveComponent(typeof(AudioPlaying), typeof(VirtualVoice))]
+    struct TimeOnPlayCleanUpJob : IJobProcessComponentData<DSPTimeOnPlay>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        public void Execute([ReadOnly]ref AudioProperty_StartTime startTime)
+        public void Execute([ReadOnly]ref DSPTimeOnPlay timeOnPlay)
         {
-            CommandBuffer.RemoveComponent<AudioProperty_StartTime>(startTime.Entity);
+            CommandBuffer.RemoveComponent<DSPTimeOnPlay>(timeOnPlay.Entity);
         }
     }
     #endregion
 
     #region Audio Clip ID
-    [RequireSubtractiveComponent(typeof(AudioPlaying), typeof(AudioPlayingVirtually), typeof(AudioPlayRequest))]
+    [RequireSubtractiveComponent(typeof(AudioPlaying), typeof(VirtualVoice), typeof(AudioPlayRequest))]
     struct ClipIDCleanUpJob : IJobProcessComponentData<AudioProperty_AudioClipID>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -41,7 +41,7 @@ public class AudioPropertiesCleanUpSystem : JobComponentSystem
     #endregion
 
     #region Spatial Blend
-    [RequireSubtractiveComponent(typeof(AudioPlaying), typeof(AudioPlayingVirtually), typeof(AudioPlayRequest))]
+    [RequireSubtractiveComponent(typeof(AudioPlaying), typeof(VirtualVoice), typeof(AudioPlayRequest))]
     struct SpatialBlendCleanUpJob : IJobProcessComponentData<AudioProperty_SpatialBlend>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -54,7 +54,7 @@ public class AudioPropertiesCleanUpSystem : JobComponentSystem
     #endregion
 
     #region Loop
-    [RequireSubtractiveComponent(typeof(AudioPlaying), typeof(AudioPlayingVirtually), typeof(AudioPlayRequest))]
+    [RequireSubtractiveComponent(typeof(AudioPlaying), typeof(VirtualVoice), typeof(AudioPlayRequest))]
     struct LoopCleanUpJob : IJobProcessComponentData<AudioProperty_Loop>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -69,26 +69,26 @@ public class AudioPropertiesCleanUpSystem : JobComponentSystem
 
     protected override void OnStartRunning()
     {
-        jobHandles = new NativeArray<JobHandle>(4, Allocator.Persistent);
+        _jobHandles = new NativeArray<JobHandle>(4, Allocator.Persistent);
     }
 
     protected override void OnStopRunning()
     {
-        jobHandles.Dispose();
+        _jobHandles.Dispose();
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var startTimeCleanUpJob = new StartTimeCleanUpJob() { CommandBuffer = audioPropertiesCleanUpBarrier.CreateCommandBuffer() };
+        var timeOnPlayCleanUpJob = new TimeOnPlayCleanUpJob() { CommandBuffer = audioPropertiesCleanUpBarrier.CreateCommandBuffer() };
         var clipIDCleanUpJob = new ClipIDCleanUpJob() { CommandBuffer = audioPropertiesCleanUpBarrier.CreateCommandBuffer() };
         var spatialBlendCleanUpJob = new SpatialBlendCleanUpJob() { CommandBuffer = audioPropertiesCleanUpBarrier.CreateCommandBuffer() };
         var loopCleanUpJob = new LoopCleanUpJob() { CommandBuffer = audioPropertiesCleanUpBarrier.CreateCommandBuffer() };
 
-        jobHandles[0] = startTimeCleanUpJob.Schedule(this, inputDeps);
-        jobHandles[1] = clipIDCleanUpJob.Schedule(this, inputDeps);
-        jobHandles[2] = spatialBlendCleanUpJob.Schedule(this, inputDeps);
-        jobHandles[3] = loopCleanUpJob.Schedule(this, inputDeps);
+        _jobHandles[0] = timeOnPlayCleanUpJob.Schedule(this, inputDeps);
+        _jobHandles[1] = clipIDCleanUpJob.Schedule(this, inputDeps);
+        _jobHandles[2] = spatialBlendCleanUpJob.Schedule(this, inputDeps);
+        _jobHandles[3] = loopCleanUpJob.Schedule(this, inputDeps);
 
-        return JobHandle.CombineDependencies(jobHandles);
+        return JobHandle.CombineDependencies(_jobHandles);
     }
 }

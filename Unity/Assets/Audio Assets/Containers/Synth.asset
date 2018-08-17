@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54ebd9025c7e164e8819ee47c9ac187, type: 3}
+  m_Name: Synth
+  m_EditorClassIdentifier: 
+  _instanceMaxLimit: 0
+  _audioElements:
+  - _audioAssets: {fileID: 11400000, guid: 8b208b911452fe94b9111111f2a9877e, type: 2}
+    _spatialBlend: 0
+    _loop: 0
+  - _audioAssets: {fileID: 11400000, guid: d50fed123369d124fb101904c95c381d, type: 2}
+    _spatialBlend: 0
+    _loop: 0
+  - _audioAssets: {fileID: 11400000, guid: 8061a1b33a456b145806391a65098d8c, type: 2}
+    _spatialBlend: 0
+    _loop: 0
