@@ -11,29 +11,27 @@ public class CopyAudioPropertiesSystem : JobComponentSystem
     public class CopyAudioPropertiesBarrier : BarrierSystem { }
 
     #region CopyMuteRequestJob
-    [RequireComponentTag(typeof(AudioMuteRequest))]
+    [RequireComponentTag(typeof(MuteRequest))]
     struct CopyMuteRequestJob : IJobProcessComponentData<RealVoice>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
         public void Execute([ReadOnly]ref RealVoice realVoice)
         {
-            CommandBuffer.AddSharedComponent(realVoice.SourceEntity, new AudioMuteRequest());
-            CommandBuffer.RemoveComponent<AudioMuteRequest>(realVoice.VoiceEntity);
-            CommandBuffer.RemoveComponent<RealVoice>(realVoice.VoiceEntity);
+            CommandBuffer.AddSharedComponent(realVoice.SourceEntity, new MuteRequest());
+            CommandBuffer.RemoveComponent<MuteRequest>(realVoice.VoiceEntity);
         }
     }
     #endregion
 
     #region CopyStopRequestJob
-    [RequireComponentTag(typeof(AudioStopRequest))]
+    [RequireComponentTag(typeof(StopRequest))]
     struct CopyStopRequestJob : IJobProcessComponentData<RealVoice>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
         public void Execute([ReadOnly]ref RealVoice realVoice)
         {
-            CommandBuffer.AddSharedComponent(realVoice.SourceEntity, new AudioStopRequest());
-            CommandBuffer.RemoveComponent<AudioStopRequest>(realVoice.VoiceEntity);
-            CommandBuffer.RemoveComponent<RealVoice>(realVoice.VoiceEntity);
+            CommandBuffer.AddSharedComponent(realVoice.SourceEntity, new StopRequest());
+            CommandBuffer.RemoveComponent<StopRequest>(realVoice.VoiceEntity);
         }
     }
     #endregion

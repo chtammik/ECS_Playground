@@ -4,7 +4,7 @@ using System.Collections;
 public class PerformMusic : MonoBehaviour
 {
     [SerializeField] KeyCode _playAndStopKeyCode;
-    [SerializeField] KeyCode _playAndMuteKeyCode;
+    [SerializeField] KeyCode _muteAndUnmuteKeyCode;
     bool _performing;
     bool _muted;
 
@@ -15,6 +15,7 @@ public class PerformMusic : MonoBehaviour
         _audioOwner = GetComponent<AudioOwner>();
         _audioOwner.OnAudioPlayed += IsPerforming;
         _audioOwner.OnAudioStopped += IsNotPerforming;
+        _audioOwner.OnAudioStopped += IsNotMuted;
         _audioOwner.OnAudioMuted += IsMuted;
         _audioOwner.OnAudioUnmuted += IsNotMuted;
     }
@@ -41,7 +42,7 @@ public class PerformMusic : MonoBehaviour
                 _audioOwner.Play();
         }
 
-        if (Input.GetKeyDown(_playAndMuteKeyCode))
+        if (Input.GetKeyDown(_muteAndUnmuteKeyCode))
         {
             if (_muted)
                 _audioOwner.Unmute();

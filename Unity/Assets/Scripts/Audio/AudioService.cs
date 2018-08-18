@@ -42,6 +42,7 @@ public sealed class AudioService
         audioSource.playOnAwake = false;
         audioSource.loop = false;
         audioSource.spatialBlend = 0;
+        audioSource.timeSamples = 0;
     }
 
     public static AudioClip GetAudioClip(int index) { return s_clipList.Clips[index]; }
@@ -58,7 +59,7 @@ public sealed class AudioService
                 return;
             }
 
-            s_entityManager.AddComponentData(voiceEntity, new AudioPlayRequest(voiceEntity));
+            s_entityManager.AddComponentData(voiceEntity, new RealVoiceRequest(voiceEntity));
             s_entityManager.AddComponentData(voiceEntity, new AudioProperty_AudioClipID(voiceEntity, audioOwner.GetClipID(i)));
 
             var blend = audioOwner.GetSpatialBlend(i);
@@ -81,7 +82,7 @@ public sealed class AudioService
                 Debug.LogWarning("You're trying to stop " + audioOwner.gameObject.name + ", which is not playing.");
                 return;
             }
-            s_entityManager.AddSharedComponentData(audioOwner.VoiceEntities[i], new AudioStopRequest());
+            s_entityManager.AddSharedComponentData(audioOwner.VoiceEntities[i], new StopRequest());
         }
     }
 
@@ -90,12 +91,17 @@ public sealed class AudioService
         for (int i = 0; i < audioOwner.VoiceEntities.Length; i++)
         {
             Entity voiceEntity = audioOwner.VoiceEntities[i];
-            if (s_entityManager.HasComponent<VirtualVoice>(voiceEntity) && !s_entityManager.HasComponent<AudioPlayRequest>(voiceEntity))
+            if (s_entityManager.HasComponent<VirtualVoice>(voiceEntity) && !s_entityManager.HasComponent<RealVoiceRequest>(voiceEntity))
             {
                 Debug.LogWarning("You're trying to mute " + audioOwner.gameObject.name + ", which is already muted.");
                 return;
             }
-                s_entityManager.AddSharedComponentData(audioOwner.VoiceEntities[i], new AudioMuteRequest());
+            if (!s_entityManager.HasComponent<VirtualVoice>(voiceEntity) && !s_entityManager.HasComponent<RealVoice>(voiceEntity))
+            {
+                Debug.LogWarning("You're trying to mute " + audioOwner.gameObject.name + ", which is not playing.");
+                return;
+            }
+            s_entityManager.AddSharedComponentData(audioOwner.VoiceEntities[i], new MuteRequest());
         }
     }
 
@@ -104,8 +110,8 @@ public sealed class AudioService
         for (int i = 0; i < audioOwner.VoiceEntities.Length; i++)
         {
             Entity voiceEntity = audioOwner.VoiceEntities[i];
-            if (s_entityManager.HasComponent<VirtualVoice>(voiceEntity) && !s_entityManager.HasComponent<AudioPlayRequest>(voiceEntity))
-                s_entityManager.AddComponentData(voiceEntity, new AudioPlayRequest(voiceEntity));
+            if (s_entityManager.HasComponent<VirtualVoice>(voiceEntity) && !s_entityManager.HasComponent<RealVoiceRequest>(voiceEntity))
+                s_entityManager.AddComponentData(voiceEntity, new RealVoiceRequest(voiceEntity));
             else
             {
                 Debug.LogWarning("You're trying to unmute " + audioOwner.gameObject.name + ", which is either not playing, not muted, or already trying to play.");

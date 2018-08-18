@@ -10,14 +10,14 @@ public class AudioMuteSystem : ComponentSystem
         public readonly int Length;
         public EntityArray Entities;
         [ReadOnly] public ComponentArray<AudioSource> AudioSources;
-        [ReadOnly] public SharedComponentDataArray<AudioMuteRequest> VirtualizeRequests;
-        [ReadOnly] public SharedComponentDataArray<AudioPlaying> Playing;
+        [ReadOnly] public SharedComponentDataArray<MuteRequest> VirtualizeRequests;
+        [ReadOnly] public SharedComponentDataArray<Playing> Playing;
         [ReadOnly] public ComponentDataArray<ClaimedByVoice> Claimed;
         [ReadOnly] public ComponentDataArray<AudioSourceHandle> Handles;
     }
     [Inject] AudioSourceGroup _audioSourceGroup;
 
-    [Inject] ComponentDataFromEntity<AudioPlayRequest> _playRequest;
+    [Inject] ComponentDataFromEntity<RealVoiceRequest> _realVoiceRequest;
     [Inject] ComponentDataFromEntity<AudioProperty_AudioClipID> _audioClip;
     [Inject] ComponentDataFromEntity<AudioProperty_SpatialBlend> _audioSpatialBlend;
     [Inject] ComponentDataFromEntity<DSPTimeOnPlay> _timeOnPlay;
@@ -28,16 +28,16 @@ public class AudioMuteSystem : ComponentSystem
         for (int i = 0; i < _audioSourceGroup.Length; i++)
         {
             Entity sourceEntity = _audioSourceGroup.Entities[i];
-            Entity voiceEntity = _audioSourceGroup.Claimed[i].VocieEntity;
+            Entity voiceEntity = _audioSourceGroup.Claimed[i].VoiceEntity;
             AudioSource audioSource = _audioSourceGroup.AudioSources[i];
             audioSource.Stop();
             AudioService.ResetAudioSource(audioSource);
-            PostUpdateCommands.RemoveComponent<AudioMuteRequest>(sourceEntity);
-            PostUpdateCommands.RemoveComponent<AudioPlaying>(sourceEntity);
+            PostUpdateCommands.RemoveComponent<MuteRequest>(sourceEntity);
+            PostUpdateCommands.RemoveComponent<Playing>(sourceEntity);
             PostUpdateCommands.RemoveComponent<ClaimedByVoice>(sourceEntity);
 
-            if (_playRequest.Exists(sourceEntity))
-                PostUpdateCommands.RemoveComponent<AudioPlayRequest>(sourceEntity);
+            if (_realVoiceRequest.Exists(sourceEntity))
+                PostUpdateCommands.RemoveComponent<RealVoiceRequest>(sourceEntity);
 
             if (_timeOnPlay.Exists(sourceEntity))
             {
@@ -68,6 +68,7 @@ public class AudioMuteSystem : ComponentSystem
             //...
             #endregion
 
+            PostUpdateCommands.RemoveComponent<RealVoice>(voiceEntity);
             PostUpdateCommands.AddComponent(voiceEntity, new VirtualVoice(voiceEntity));
             PostUpdateCommands.AddComponent(voiceEntity, new AudioMessage_Muted(voiceEntity));
         }

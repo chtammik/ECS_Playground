@@ -15,7 +15,7 @@ public class AudioPropertiesCleanUpSystem : JobComponentSystem
     public class AudioPropertiesCleanUpBarrier : BarrierSystem { }
 
     #region Time On Play
-    [RequireSubtractiveComponent(typeof(AudioPlaying), typeof(VirtualVoice))]
+    [RequireSubtractiveComponent(typeof(Playing), typeof(VirtualVoice))]
     struct TimeOnPlayCleanUpJob : IJobProcessComponentData<DSPTimeOnPlay>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -28,7 +28,7 @@ public class AudioPropertiesCleanUpSystem : JobComponentSystem
     #endregion
 
     #region Audio Clip ID
-    [RequireSubtractiveComponent(typeof(AudioPlaying), typeof(VirtualVoice), typeof(AudioPlayRequest))]
+    [RequireSubtractiveComponent(typeof(Playing), typeof(VirtualVoice), typeof(RealVoiceRequest))]
     struct ClipIDCleanUpJob : IJobProcessComponentData<AudioProperty_AudioClipID>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -41,7 +41,7 @@ public class AudioPropertiesCleanUpSystem : JobComponentSystem
     #endregion
 
     #region Spatial Blend
-    [RequireSubtractiveComponent(typeof(AudioPlaying), typeof(VirtualVoice), typeof(AudioPlayRequest))]
+    [RequireSubtractiveComponent(typeof(Playing), typeof(VirtualVoice), typeof(RealVoiceRequest))]
     struct SpatialBlendCleanUpJob : IJobProcessComponentData<AudioProperty_SpatialBlend>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -54,7 +54,7 @@ public class AudioPropertiesCleanUpSystem : JobComponentSystem
     #endregion
 
     #region Loop
-    [RequireSubtractiveComponent(typeof(AudioPlaying), typeof(VirtualVoice), typeof(AudioPlayRequest))]
+    [RequireSubtractiveComponent(typeof(Playing), typeof(VirtualVoice), typeof(RealVoiceRequest))]
     struct LoopCleanUpJob : IJobProcessComponentData<AudioProperty_Loop>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;

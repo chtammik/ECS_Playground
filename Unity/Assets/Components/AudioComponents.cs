@@ -48,27 +48,27 @@ public struct AudioSourceHandle : IComponentData
 
 public struct ClaimedByVoice : IComponentData
 {
-    public Entity VocieEntity;
-
-    public ClaimedByVoice(Entity voiceEntity)
-    {
-        VocieEntity = voiceEntity;
-    }
-}
-
-public struct AudioPlayRequest : IComponentData
-{
     public Entity VoiceEntity;
 
-    public AudioPlayRequest(Entity voiceEntity)
+    public ClaimedByVoice(Entity voiceEntity)
     {
         VoiceEntity = voiceEntity;
     }
 }
-public struct AudioStopRequest : ISharedComponentData { }
-public struct AudioMuteRequest : ISharedComponentData { }
-public struct AudioReadyToPlay : ISharedComponentData { }
-public struct AudioPlaying : ISharedComponentData { } //different from RealVoice, which is on the voice entity, AudioPlaying is on the source entity.
+
+public struct RealVoiceRequest : IComponentData
+{
+    public Entity VoiceEntity;
+
+    public RealVoiceRequest(Entity voiceEntity)
+    {
+        VoiceEntity = voiceEntity;
+    }
+}
+public struct StopRequest : ISharedComponentData { }
+public struct MuteRequest : ISharedComponentData { }
+public struct ReadToPlay : ISharedComponentData { }
+public struct Playing : ISharedComponentData { } //different from RealVoice, which is on the voice entity, Playing is on the source entity.
 
 public struct DSPTimeOnPlay : IComponentData
 {

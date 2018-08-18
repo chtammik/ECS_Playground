@@ -31,38 +31,52 @@ public class AudioConflictSystem : JobComponentSystem
     #region Cancel PlayRequest from MuteRequest
     //having an AudioPlayRequest that hasn't been dealt with means it's been playing virtually and trying to get a RealVoice, 
     //so AudioMuteRequest makes it stay virtual but stop trying to get a RealVoice.
-    [RequireComponentTag(typeof(AudioMuteRequest))]
-    struct CancelPlayRequestFromMuteJob : IJobProcessComponentData<AudioPlayRequest>
+    [RequireComponentTag(typeof(MuteRequest))]
+    struct CancelPlayRequestFromMuteJob : IJobProcessComponentData<RealVoiceRequest>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        public void Execute([ReadOnly]ref AudioPlayRequest playRequest)
+        public void Execute([ReadOnly]ref RealVoiceRequest playRequest)
         {
-            CommandBuffer.RemoveComponent<AudioPlayRequest>(playRequest.VoiceEntity);
-            CommandBuffer.RemoveComponent<AudioMuteRequest>(playRequest.VoiceEntity);
+            CommandBuffer.RemoveComponent<RealVoiceRequest>(playRequest.VoiceEntity);
+            CommandBuffer.RemoveComponent<MuteRequest>(playRequest.VoiceEntity);
         }
     }
     #endregion
 
     #region Invalid MuteRequest
     //if you're trying to mute a virtual voice that's not trying to get a RealVoice, you're muting something that's already muted.
-    [RequireComponentTag(typeof(AudioMuteRequest))]
-    [RequireSubtractiveComponent(typeof(AudioPlayRequest))]
+    [RequireComponentTag(typeof(MuteRequest))]
+    [RequireSubtractiveComponent(typeof(RealVoiceRequest))]
     struct CancelInvalidMuteRequestJob : IJobProcessComponentData<VirtualVoice>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         public void Execute([ReadOnly]ref VirtualVoice virtualVoice)
         {
-            CommandBuffer.RemoveComponent<AudioMuteRequest>(virtualVoice.VoiceEntity);
+            CommandBuffer.RemoveComponent<MuteRequest>(virtualVoice.VoiceEntity);
             Debug.LogWarning("You are trying to mute the voice entity: " + virtualVoice.VoiceEntity.Index + ", which is already muted.");
+        }
+    }
+
+    //if you're trying to mute a voice that has no either RealVoice or VirtualVoice, you're muting nothing.
+    [RequireComponentTag(typeof(MuteRequest))]
+    [RequireSubtractiveComponent(typeof(RealVoice), typeof(VirtualVoice))]
+    struct CancelInvalidMuteRequestJob2 : IJobProcessComponentData<VoiceHandle>
+    {
+        public EntityCommandBuffer.Concurrent CommandBuffer;
+
+        public void Execute([ReadOnly]ref VoiceHandle voiceHandle)
+        {
+            CommandBuffer.RemoveComponent<MuteRequest>(voiceHandle.VoiceEntity);
+            Debug.LogWarning("You are trying to mute the voice entity: " + voiceHandle.VoiceEntity.Index + ", which is not playing.");
         }
     }
     #endregion
 
     #region Invalid StopRequest
     //if you're trying to stop a voice that has no either RealVoice or VirtualVoice, you're stopping nothing.
-    [RequireComponentTag(typeof(AudioStopRequest))]
+    [RequireComponentTag(typeof(StopRequest))]
     [RequireSubtractiveComponent(typeof(RealVoice), typeof(VirtualVoice))]
     struct CancelInvalidStopRequestJob : IJobProcessComponentData<VoiceHandle>
     {
@@ -70,7 +84,7 @@ public class AudioConflictSystem : JobComponentSystem
 
         public void Execute([ReadOnly]ref VoiceHandle voiceHandle)
         {
-            CommandBuffer.RemoveComponent<AudioStopRequest>(voiceHandle.VoiceEntity);
+            CommandBuffer.RemoveComponent<StopRequest>(voiceHandle.VoiceEntity);
             Debug.LogWarning("You are trying to stop the voice entity: " + voiceHandle.VoiceEntity.Index + ", which is not playing.");
         }
     }
@@ -79,13 +93,13 @@ public class AudioConflictSystem : JobComponentSystem
     #region Invalid PlayRequest
     //sending an AudioPlayRequest alone can have an assigned AudioSource play nothing.
     [RequireSubtractiveComponent(typeof(AudioProperty_AudioClipID))]
-    struct CancelInvalidPlayRequestJob : IJobProcessComponentData<AudioPlayRequest>
+    struct CancelInvalidPlayRequestJob : IJobProcessComponentData<RealVoiceRequest>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        public void Execute([ReadOnly]ref AudioPlayRequest playRequest)
+        public void Execute([ReadOnly]ref RealVoiceRequest playRequest)
         {
-            CommandBuffer.RemoveComponent<AudioPlayRequest>(playRequest.VoiceEntity);
+            CommandBuffer.RemoveComponent<RealVoiceRequest>(playRequest.VoiceEntity);
             Debug.LogWarning("You are trying to play the voice entity: " + playRequest.VoiceEntity.Index + ", but no audio clip is provided.");
         }
     }
@@ -93,7 +107,7 @@ public class AudioConflictSystem : JobComponentSystem
 
     protected override void OnStartRunning()
     {
-        _jobHandles = new NativeArray<JobHandle>(5, Allocator.Persistent);
+        _jobHandles = new NativeArray<JobHandle>(6, Allocator.Persistent);
     }
 
     protected override void OnStopRunning()
@@ -108,14 +122,16 @@ public class AudioConflictSystem : JobComponentSystem
         var devirtualizeJob = new DevirtualizeJob { CommandBuffer = _conflictBarrier.CreateCommandBuffer() };
         var cancelPlayFromMuteJob = new CancelPlayRequestFromMuteJob { CommandBuffer = _conflictBarrier.CreateCommandBuffer() };
         var cancelInvalidMuteRequestJob = new CancelInvalidMuteRequestJob { CommandBuffer = _conflictBarrier.CreateCommandBuffer() };
+        var cancelInvalidMuteRequestJob2 = new CancelInvalidMuteRequestJob2 { CommandBuffer = _conflictBarrier.CreateCommandBuffer() };
         var cancelInvalidStopRequestJob = new CancelInvalidStopRequestJob { CommandBuffer = _conflictBarrier.CreateCommandBuffer() };
         var cancelInvalidPlayRequestJob = new CancelInvalidPlayRequestJob { CommandBuffer = _conflictBarrier.CreateCommandBuffer() };
 
         _jobHandles[0] = devirtualizeJob.Schedule(this, inputDeps);
         _jobHandles[1] = cancelPlayFromMuteJob.Schedule(this, inputDeps);
         _jobHandles[2] = cancelInvalidMuteRequestJob.Schedule(this, inputDeps);
-        _jobHandles[3] = cancelInvalidStopRequestJob.Schedule(this, inputDeps);
-        _jobHandles[4] = cancelInvalidPlayRequestJob.Schedule(this, inputDeps);
+        _jobHandles[3] = cancelInvalidMuteRequestJob2.Schedule(this, inputDeps);
+        _jobHandles[4] = cancelInvalidStopRequestJob.Schedule(this, inputDeps);
+        _jobHandles[5] = cancelInvalidPlayRequestJob.Schedule(this, inputDeps);
 
         return JobHandle.CombineDependencies(_jobHandles);
     }

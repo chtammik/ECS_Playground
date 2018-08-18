@@ -5,7 +5,8 @@
     "com.unity.standardevents": "exclude",
     "com.unity.purchasing": "exclude",
     "com.unity.burst": "0.2.4-preview.20",
-    "com.unity.entities": "0.0.12-preview.8"
+    "com.unity.entities": "0.0.12-preview.8",
+    "com.unity.incrementalcompiler": "0.0.42-preview.19"
   },
   "testables": [
     "com.unity.collections",

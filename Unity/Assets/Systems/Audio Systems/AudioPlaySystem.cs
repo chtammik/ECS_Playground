@@ -12,8 +12,8 @@ public class AudioPlaySystem : ComponentSystem
         public ComponentArray<AudioSource> AudioSources;
         [ReadOnly] public ComponentDataArray<ClaimedByVoice> Claimeds;
         [ReadOnly] public ComponentDataArray<AudioSourceHandle> Handles;
-        [ReadOnly] public SharedComponentDataArray<AudioReadyToPlay> ReadyToPlays;
-        [ReadOnly] public SubtractiveComponent<AudioPlaying> No_AudioPlaying;
+        [ReadOnly] public SharedComponentDataArray<ReadToPlay> ReadyToPlays;
+        [ReadOnly] public SubtractiveComponent<Playing> No_Playing;
     }
     [Inject] ToPlayGroup _toPlayGroup;
 
@@ -21,7 +21,7 @@ public class AudioPlaySystem : ComponentSystem
     {
         public readonly int Length;
         public EntityArray Entities;
-        [ReadOnly] public ComponentDataArray<AudioPlayRequest> PlayRequests;
+        [ReadOnly] public ComponentDataArray<RealVoiceRequest> PlayRequests;
         [ReadOnly] public SubtractiveComponent<RealVoice> No_RealVoice;
         [ReadOnly] public SubtractiveComponent<VirtualVoice> No_VirtualVoice;
     }
@@ -34,7 +34,7 @@ public class AudioPlaySystem : ComponentSystem
         for (int i = 0; i < _toPlayGroup.Length; i++)
         {
             Entity sourceEntity = _toPlayGroup.Entities[i];
-            Entity voiceEntity = _toPlayGroup.Claimeds[i].VocieEntity;
+            Entity voiceEntity = _toPlayGroup.Claimeds[i].VoiceEntity;
             AudioSource audioSource = _toPlayGroup.AudioSources[i];
 
             if (_timeOnPlay.Exists(sourceEntity)) //DSPTimeOnPlay is the only property that needs to be applied in the AudioPlaySystem because of the need for precision.
@@ -49,6 +49,7 @@ public class AudioPlaySystem : ComponentSystem
                     audioSource.timeSamples = samplesSinceLastTimeStarted % clipTotalSamples; //only works when sample rate matches
                 else
                     audioSource.timeSamples = (int)((samplesSinceLastTimeStarted % (clipTotalSamples * ((double)outputSampleRate / clipSampleRate))) * ((double)clipSampleRate / outputSampleRate));
+                PostUpdateCommands.RemoveComponent<VirtualVoice>(voiceEntity);
                 PostUpdateCommands.AddComponent(voiceEntity, new AudioMessage_Unmuted(voiceEntity));
             }
             else
@@ -59,8 +60,8 @@ public class AudioPlaySystem : ComponentSystem
                 
             audioSource.Play();
 
-            PostUpdateCommands.RemoveComponent<AudioReadyToPlay>(sourceEntity);
-            PostUpdateCommands.AddSharedComponent(sourceEntity, new AudioPlaying());
+            PostUpdateCommands.RemoveComponent<ReadToPlay>(sourceEntity);
+            PostUpdateCommands.AddSharedComponent(sourceEntity, new Playing());
         }
 
         //The voices that didn't get a RealVoice will start playing virtually.

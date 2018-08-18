@@ -12,7 +12,7 @@ public class AssignAudioSourceIDSystem : JobComponentSystem
     struct PlayRequestGroup //all entities that need to play a sound.
     {
         public readonly int Length;
-        [ReadOnly] public ComponentDataArray<AudioPlayRequest> PlayRequests;
+        [ReadOnly] public ComponentDataArray<RealVoiceRequest> RealVoiceRequests;
         [ReadOnly] public SubtractiveComponent<RealVoice> No_RealVoice;
     }
     [Inject] PlayRequestGroup _playRequestGroup;
@@ -28,7 +28,7 @@ public class AssignAudioSourceIDSystem : JobComponentSystem
     struct AssignSourceIDJob : IJobParallelFor
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
-        [ReadOnly] public ComponentDataArray<AudioPlayRequest> PlayRequests;
+        [ReadOnly] public ComponentDataArray<RealVoiceRequest> PlayRequests;
         [ReadOnly] public ComponentDataArray<AudioSourceHandle> SourceHandles;
 
         public void Execute(int index)
@@ -41,7 +41,7 @@ public class AssignAudioSourceIDSystem : JobComponentSystem
             CommandBuffer.AddComponent(SourceHandles[index].SourceEntity, new ClaimedByVoice(PlayRequests[index].VoiceEntity));
 
             //the game entity is no longer requiring to obtain a voice.
-            CommandBuffer.RemoveComponent<AudioPlayRequest>(PlayRequests[index].VoiceEntity);
+            CommandBuffer.RemoveComponent<RealVoiceRequest>(PlayRequests[index].VoiceEntity);
         }
     }
 
@@ -53,7 +53,7 @@ public class AssignAudioSourceIDSystem : JobComponentSystem
         var assignSourceIDJob = new AssignSourceIDJob
         {
             CommandBuffer = _assignSourceIDBarrier.CreateCommandBuffer(),
-            PlayRequests = _playRequestGroup.PlayRequests,
+            PlayRequests = _playRequestGroup.RealVoiceRequests,
             SourceHandles = _sourceHandleGroup.SourceHandles
         };
         JobHandle assignSourceIDJH = assignSourceIDJob.Schedule(jobAmount, 64, inputDeps);

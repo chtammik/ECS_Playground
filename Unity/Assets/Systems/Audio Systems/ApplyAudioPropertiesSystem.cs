@@ -13,8 +13,8 @@ public class ApplyAudioPropertiesSystem : ComponentSystem
         public ComponentArray<AudioSource> Sources;
         [ReadOnly] public ComponentDataArray<ClaimedByVoice> Claimeds;
         [ReadOnly] public ComponentDataArray<AudioSourceHandle> Handles;
-        [ReadOnly] public SubtractiveComponent<AudioReadyToPlay> No_ReadyToPlay;
-        [ReadOnly] public SubtractiveComponent<AudioPlaying> No_AudioPlaying;
+        [ReadOnly] public SubtractiveComponent<ReadToPlay> No_ReadyToPlay;
+        [ReadOnly] public SubtractiveComponent<Playing> No_Playing;
     }
     [Inject] SourceHandleGroup _sourceGroup;
 
@@ -40,7 +40,7 @@ public class ApplyAudioPropertiesSystem : ComponentSystem
                 audioSource.loop = false;
 
             //...
-            PostUpdateCommands.AddSharedComponent(entity, new AudioReadyToPlay());
+            PostUpdateCommands.AddSharedComponent(entity, new ReadToPlay());
         }
     }
 }
