@@ -305,6 +305,7 @@
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioAsset.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioClipList.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioContainer.cs
+-i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioInstance.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioOwner.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioService.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioSourcePool.cs

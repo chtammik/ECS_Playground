@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System;
+using System.Collections.Generic;
 using Unity.Entities;
 
 public enum PlaybackMessageType { Played, Stopped, Muted, Unmuted }
@@ -9,29 +10,36 @@ public class AudioOwner : MonoBehaviour
     [SerializeField] AudioContainer _audioContainer;
     public AudioContainer AudioContainer { get { return _audioContainer; } }
     public Entity GameEntity { get; private set; }
-    public Entity[] VoiceEntities { get; private set; }
-    public int[] VoiceEntityIndex { get; private set; }
+    public AudioInstance[] AudioInstances { get; private set; }
+    public Dictionary<AudioInstance, InstanceState> InstanceOccupation { get; set; }
+
     bool _voicesCreated;
     bool _isApplicationQuitting;
 
     public delegate void PlaybackMessage();
     public event PlaybackMessage OnAudioPlayed;
     public event PlaybackMessage OnAudioStopped;
+    /// <summary>
+    /// Only will be called when there's only one instance allowed.
+    /// </summary>
     public event PlaybackMessage OnAudioMuted;
+    /// <summary>
+    /// Only will be called when there's only one instance allowed and one voice involved.
+    /// </summary>
     public event PlaybackMessage OnAudioUnmuted;
 
     void Awake()
     {
-        if(BootstrapAudio.IfAudioServiceInitialized())
+        if (BootstrapAudio.IfAudioServiceInitialized())
         {
             RegisterToEntityMananger();
-            CreateVoiceEntities();
+            CreateAudioInstances();
         }
         else //if AudioService is not initialized yet, then call these functions right after it's initialized.
         {
             BootstrapAudio.OnAudioServiceInitialized += RegisterToEntityMananger;
-            BootstrapAudio.OnAudioServiceInitialized += CreateVoiceEntities;
-            Debug.Log(gameObject.name + " subscribed to BootstrapAudio.");
+            BootstrapAudio.OnAudioServiceInitialized += CreateAudioInstances;
+            //Debug.Log(gameObject.name + " subscribed to BootstrapAudio.");
         }
     }
 
@@ -47,19 +55,27 @@ public class AudioOwner : MonoBehaviour
         _isApplicationQuitting = true;
     }
 
-    void CreateVoiceEntities()
+    void CreateAudioInstances()
     {
-        VoiceEntities = new Entity[AudioContainer.VoiceCount];
-        VoiceEntityIndex = new int[AudioContainer.VoiceCount];
+        AudioInstances = new AudioInstance[AudioContainer.InstanceLimit];
+        InstanceOccupation = new Dictionary<AudioInstance, InstanceState>(AudioContainer.InstanceLimit);
 
-        for (int i = 0; i < VoiceEntities.Length; i++)
+        for (int i = 0; i < AudioInstances.Length; i++)
         {
-            VoiceEntities[i] = AudioService.CreateVoiceEntity(GameEntity);
-            VoiceEntityIndex[i] = VoiceEntities[i].Index;
-            AudioMessageSystem.AddNewAudioOwner(VoiceEntities[i], this);
+            AudioInstances[i] = new AudioInstance();
+            AudioInstances[i].CreateVoiceEntities(this);
+            AudioInstances[i].OnInstancePlayed += OnPlayed;
+            AudioInstances[i].OnInstanceStopped += OnStopped;
+            InstanceOccupation.Add(AudioInstances[i], InstanceState.Stopped);
         }
+
+        if (AudioInstances.Length == 1)
+        {
+            AudioInstances[0].OnInstanceMuted += OnMuted;
+            AudioInstances[0].OnInstanceUnmuted += OnUnmuted;
+        }
+
         _voicesCreated = true;
-        Debug.Log(gameObject.name + "'s VoiceHandles' length is " + VoiceEntities.Length);
     }
 
     void RegisterToEntityMananger() { GameEntity = AudioService.RegisterAudioOwner(this); }
@@ -90,26 +106,16 @@ public class AudioOwner : MonoBehaviour
             AudioService.Unmute(this);
     }
 
-    public void BroadcastPlaybackStatus(PlaybackMessageType playback)
-    {
-        switch (playback)
-        {
-            case PlaybackMessageType.Played:
-                OnAudioPlayed();
-                return;
-            case PlaybackMessageType.Stopped:
-                OnAudioStopped();
-                return;
-            case PlaybackMessageType.Muted:
-                OnAudioMuted();
-                return;
-            case PlaybackMessageType.Unmuted:
-                OnAudioUnmuted();
-                return;
-        }
-    }
-
     public int GetClipID(int index) { return AudioContainer.GetAudioElements[index].GetAudioAsset.GetClipID; }
     public float GetSpatialBlend(int index) { return AudioContainer.GetAudioElements[index].GetSpatialBlend; }
     public bool GetLoop(int index) { return AudioContainer.GetAudioElements[index].GetLoop; }
+
+    void OnPlayed() { OnAudioPlayed(); } //whenever an instance gets fired, the AudioOwner is considered played.
+    void OnStopped()
+    {
+        if (!InstanceOccupation.ContainsValue(InstanceState.PartiallyMuted) && !InstanceOccupation.ContainsValue(InstanceState.FullyMuted)) //it needs all instances to be stopped for the whole AudioOwner to be considered stopped.
+            OnAudioStopped();
+    }
+    void OnMuted() { OnAudioMuted(); }
+    void OnUnmuted() { OnAudioUnmuted(); }
 }

@@ -91,7 +91,7 @@ public class AudioConflictSystem : JobComponentSystem
     #endregion
 
     #region Invalid PlayRequest
-    //sending an AudioPlayRequest alone can have an assigned AudioSource play nothing.
+    //sending an RealVoiceRequest without AudioClip can have an assigned AudioSource play nothing.
     [RequireSubtractiveComponent(typeof(AudioProperty_AudioClipID))]
     struct CancelInvalidPlayRequestJob : IJobProcessComponentData<RealVoiceRequest>
     {

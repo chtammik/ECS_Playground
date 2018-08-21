@@ -72,12 +72,9 @@ public class AudioStopVirtualSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var commandBuffer_Stop = _stopVirtualBarrier.CreateCommandBuffer();
-        var commandBuffer_AddStopRequest = _stopVirtualBarrier.CreateCommandBuffer();
-
-        var stopVirtualJob = new StopVirtualJob { CommandBuffer = commandBuffer_Stop };
-        var stopMutedJob = new StopMutedJob { CommandBuffer = commandBuffer_Stop };
-        var stopVirtualDonePlayingJob = new StopVirtualDonePlayingJob { CommandBuffer = commandBuffer_AddStopRequest };
+        var stopVirtualJob = new StopVirtualJob { CommandBuffer = _stopVirtualBarrier.CreateCommandBuffer() };
+        var stopMutedJob = new StopMutedJob { CommandBuffer = _stopVirtualBarrier.CreateCommandBuffer() };
+        var stopVirtualDonePlayingJob = new StopVirtualDonePlayingJob { CommandBuffer = _stopVirtualBarrier.CreateCommandBuffer() };
 
         _jobHandles[0] = stopVirtualJob.Schedule(this, 64, inputDeps);
         _jobHandles[1] = stopMutedJob.Schedule(this, 64, inputDeps);

@@ -6,11 +6,12 @@ using Unity.Entities;
 [CreateAssetMenu(fileName = "AudioContainer")]
 public class AudioContainer : ScriptableObject
 {
-    [SerializeField] int _instanceMaxLimit; //TODO: make this actually useful.
+    [SerializeField] int _instanceLimit; //TODO: make this actually useful.
     [SerializeField] AudioElement[] _audioElements;
 
     public AudioElement[] GetAudioElements { get { return _audioElements; } }
     public int VoiceCount { get { return _audioElements.Length; } }
+    public int InstanceLimit { get { return _instanceLimit; } }
 }
 
 [Serializable]

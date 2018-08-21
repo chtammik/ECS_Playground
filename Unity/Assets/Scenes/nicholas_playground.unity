@@ -172,6 +172,11 @@ Prefab:
       propertyPath: _playAndMuteKeyCode
       value: 121
       objectReference: {fileID: 0}
+    - target: {fileID: 114960075360662000, guid: bf80ad0fa070a2146b4c30ad54f9b7a3,
+        type: 2}
+      propertyPath: _muteAndUnmuteKeyCode
+      value: 121
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bf80ad0fa070a2146b4c30ad54f9b7a3, type: 2}
   m_IsPrefabParent: 0
@@ -286,7 +291,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playAndStopKeyCode: 102
-  _muteAndUnmuteKeyCode: 0
+  _muteAndUnmuteKeyCode: 118
 --- !u!1 &354953682
 GameObject:
   m_ObjectHideFlags: 0
@@ -374,6 +379,11 @@ Prefab:
     - target: {fileID: 114960075360662000, guid: bf80ad0fa070a2146b4c30ad54f9b7a3,
         type: 2}
       propertyPath: _playAndMuteKeyCode
+      value: 101
+      objectReference: {fileID: 0}
+    - target: {fileID: 114960075360662000, guid: bf80ad0fa070a2146b4c30ad54f9b7a3,
+        type: 2}
+      propertyPath: _muteAndUnmuteKeyCode
       value: 101
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -562,7 +572,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playAndStopKeyCode: 115
-  _muteAndUnmuteKeyCode: 0
+  _muteAndUnmuteKeyCode: 120
 --- !u!1 &802576177
 GameObject:
   m_ObjectHideFlags: 0
@@ -674,7 +684,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playAndStopKeyCode: 104
-  _muteAndUnmuteKeyCode: 0
+  _muteAndUnmuteKeyCode: 110
 --- !u!4 &844411196 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4702763864090682, guid: bf80ad0fa070a2146b4c30ad54f9b7a3,
@@ -796,7 +806,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playAndStopKeyCode: 103
-  _muteAndUnmuteKeyCode: 0
+  _muteAndUnmuteKeyCode: 98
 --- !u!1 &1124403285
 GameObject:
   m_ObjectHideFlags: 0
@@ -1093,7 +1103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playAndStopKeyCode: 97
-  _muteAndUnmuteKeyCode: 0
+  _muteAndUnmuteKeyCode: 122
 --- !u!1 &1365536732
 GameObject:
   m_ObjectHideFlags: 0
@@ -1187,6 +1197,11 @@ Prefab:
       propertyPath: _playAndMuteKeyCode
       value: 119
       objectReference: {fileID: 0}
+    - target: {fileID: 114960075360662000, guid: bf80ad0fa070a2146b4c30ad54f9b7a3,
+        type: 2}
+      propertyPath: _muteAndUnmuteKeyCode
+      value: 119
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bf80ad0fa070a2146b4c30ad54f9b7a3, type: 2}
   m_IsPrefabParent: 0
@@ -1247,6 +1262,11 @@ Prefab:
     - target: {fileID: 114960075360662000, guid: bf80ad0fa070a2146b4c30ad54f9b7a3,
         type: 2}
       propertyPath: _playAndMuteKeyCode
+      value: 116
+      objectReference: {fileID: 0}
+    - target: {fileID: 114960075360662000, guid: bf80ad0fa070a2146b4c30ad54f9b7a3,
+        type: 2}
+      propertyPath: _muteAndUnmuteKeyCode
       value: 116
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -1367,6 +1387,11 @@ Prefab:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114960075360662000, guid: bf80ad0fa070a2146b4c30ad54f9b7a3,
+        type: 2}
+      propertyPath: _muteAndUnmuteKeyCode
+      value: 114
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bf80ad0fa070a2146b4c30ad54f9b7a3, type: 2}
   m_IsPrefabParent: 0
@@ -1486,4 +1511,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playAndStopKeyCode: 100
-  _muteAndUnmuteKeyCode: 0
+  _muteAndUnmuteKeyCode: 99

@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e54ebd9025c7e164e8819ee47c9ac187, type: 3}
   m_Name: Piano
   m_EditorClassIdentifier: 
-  _instanceMaxLimit: 0
+  _instanceLimit: 1
   _audioElements:
   - _audioAssets: {fileID: 11400000, guid: ea1bae07cbdf9e6419619c400a75fd04, type: 2}
     _spatialBlend: 0

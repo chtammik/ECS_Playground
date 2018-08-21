@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e54ebd9025c7e164e8819ee47c9ac187, type: 3}
   m_Name: Guitar
   m_EditorClassIdentifier: 
-  _instanceMaxLimit: 0
+  _instanceLimit: 1
   _audioElements:
   - _audioAssets: {fileID: 11400000, guid: b1e96170f7b98054794c4960366d299b, type: 2}
     _spatialBlend: 0

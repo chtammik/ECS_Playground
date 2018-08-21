@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e54ebd9025c7e164e8819ee47c9ac187, type: 3}
   m_Name: Bass
   m_EditorClassIdentifier: 
-  _instanceMaxLimit: 0
+  _instanceLimit: 1
   _audioElements:
   - _audioAssets: {fileID: 11400000, guid: 2bd20e4199b3a844f82f9d5aa439c5ab, type: 2}
     _spatialBlend: 0
