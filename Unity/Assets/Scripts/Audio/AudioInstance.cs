@@ -73,22 +73,22 @@ public class AudioInstance
             case PlaybackMessageType.Played:
                 if (!PlayedMessageSent) //so that it's only called when the first voice gets played.
                 {
-                    OnInstancePlayed();
+                    OnInstancePlayed?.Invoke();
                     PlayedMessageSent = true;
                 }
                 return;
 
             case PlaybackMessageType.Stopped:
-                OnInstanceStopped();
+                OnInstanceStopped?.Invoke();
                 PlayedMessageSent = false;
                 return;
 
             case PlaybackMessageType.Muted:
-                OnInstanceMuted();
+                OnInstanceMuted?.Invoke();
                 return;
 
             case PlaybackMessageType.Unmuted:
-                OnInstanceUnmuted();
+                OnInstanceUnmuted?.Invoke();
                 return;
         }
     }

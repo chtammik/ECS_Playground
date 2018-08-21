@@ -110,12 +110,12 @@ public class AudioOwner : MonoBehaviour
     public float GetSpatialBlend(int index) { return AudioContainer.GetAudioElements[index].GetSpatialBlend; }
     public bool GetLoop(int index) { return AudioContainer.GetAudioElements[index].GetLoop; }
 
-    void OnPlayed() { OnAudioPlayed(); } //whenever an instance gets fired, the AudioOwner is considered played.
+    void OnPlayed() { OnAudioPlayed?.Invoke(); } //whenever an instance gets fired, the AudioOwner is considered played.
     void OnStopped()
     {
         if (!InstanceOccupation.ContainsValue(InstanceState.PartiallyMuted) && !InstanceOccupation.ContainsValue(InstanceState.FullyMuted)) //it needs all instances to be stopped for the whole AudioOwner to be considered stopped.
-            OnAudioStopped();
+            OnAudioStopped?.Invoke();
     }
-    void OnMuted() { OnAudioMuted(); }
-    void OnUnmuted() { OnAudioUnmuted(); }
+    void OnMuted() { OnAudioMuted?.Invoke(); }
+    void OnUnmuted() { OnAudioUnmuted?.Invoke(); }
 }
