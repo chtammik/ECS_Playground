@@ -1,8 +1,10 @@
-﻿using Unity.Collections;
+﻿using System;
+using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
-[UpdateBefore(typeof(AssignAudioSourceIDSystem.AssignSourceIDBarrier))]
+[UpdateBefore(typeof(AssignAudioSourceSystem.AssignSourceIDBarrier))]
 public class AudioStopSystem : ComponentSystem
 {
     struct ToStopGroup
@@ -30,8 +32,14 @@ public class AudioStopSystem : ComponentSystem
     }
     [Inject] ToStop_DonePlayingGroup _toStop_DonePlayingGroup;
 
+    [Inject] ComponentDataFromEntity<VoiceHandle> _voiceHandle;
+    [Inject] ComponentDataFromEntity<InstanceClaimed> _instanceClaimed;
+    [Inject] ComponentDataFromEntity<InstanceHandle> _instanceHandle;
+
     protected override void OnUpdate()
     {
+        Dictionary<Entity, Tuple<int, int>> cachedCount = new Dictionary<Entity, Tuple<int, int>>();
+
         //Stop AudioSources that already have StopSoundRequest on it, then remove the StopSoundRequest.
         for (int i = 0; i < _toStopGroup.Length; i++)
         {
@@ -43,8 +51,38 @@ public class AudioStopSystem : ComponentSystem
             PostUpdateCommands.RemoveComponent<StopRequest>(sourceEntity);
             PostUpdateCommands.RemoveComponent<Playing>(sourceEntity);
             PostUpdateCommands.RemoveComponent<RealVoice>(voiceEntity);
-            PostUpdateCommands.AddComponent(voiceEntity, new AudioMessage_Stopped(voiceEntity));
             PostUpdateCommands.RemoveComponent<ClaimedByVoice>(sourceEntity);
+
+            Entity instanceEntity = _voiceHandle[voiceEntity].InstanceEntity;
+            int previousPlayingCount = _instanceClaimed[instanceEntity].PlayingVoiceCount;
+            int previousVirtualCount = _instanceClaimed[instanceEntity].VirtualVoiceCount;
+            int totalVoiceCount = _instanceHandle[instanceEntity].VoiceCount;
+
+            if (totalVoiceCount == 1)
+            {
+                PostUpdateCommands.RemoveComponent<InstanceClaimed>(instanceEntity);
+                PostUpdateCommands.AddComponent(instanceEntity, new AudioMessage_InstanceStopped(instanceEntity));
+            }
+            else
+            {
+                if (cachedCount.TryGetValue(instanceEntity, out Tuple<int, int> voiceInfo))
+                    cachedCount[instanceEntity] = new Tuple<int, int>(voiceInfo.Item1 - 1, voiceInfo.Item2);
+                else
+                    cachedCount.Add(instanceEntity, new Tuple<int, int>(previousPlayingCount - 1, previousVirtualCount));
+            }
+        }
+
+        foreach (KeyValuePair<Entity, Tuple<int, int>> pair in cachedCount)
+        {
+            Entity instanceEntity = pair.Key;
+            int newPlayingCount = pair.Value.Item1;
+            int newVirtualCount = pair.Value.Item2;
+
+            if (newPlayingCount == 0)
+            {
+                PostUpdateCommands.RemoveComponent<InstanceClaimed>(instanceEntity);
+                PostUpdateCommands.AddComponent(instanceEntity, new AudioMessage_InstanceStopped(instanceEntity));
+            }         
         }
 
         //Add StopSoundRequests to AudioSources that have done playing.

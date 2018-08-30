@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -15,17 +16,47 @@ public class AudioSourcePositionSystem : ComponentSystem
     }
     [Inject] RealVoiceGroup _realVoiceGroup;
 
-    [Inject] ComponentDataFromEntity<Position> _sourcePosition;
-    [Inject] ComponentDataFromEntity<Position> _gameEntityPosition;
+    [Inject] ComponentDataFromEntity<Position> _position;
+    [Inject] ComponentDataFromEntity<InstanceHandle> _instanceHandle;
 
     protected override void OnUpdate()
     {
         for (int i = 0; i < _realVoiceGroup.Length; i++)
         {
-            _sourcePosition[_realVoiceGroup.RealVoices[i].SourceEntity] = _gameEntityPosition[_realVoiceGroup.VoiceHandles[i].GameEntity];
+            Entity gameEntity = _instanceHandle[_realVoiceGroup.VoiceHandles[i].InstanceEntity].GameEntity;
+            _position[_realVoiceGroup.RealVoices[i].SourceEntity] = _position[gameEntity];
         }
     }
 }
+
+//twice slower
+//public class AudioSourcePositionSystem : JobComponentSystem
+//{
+//    [BurstCompile]
+//    struct AudioSourcePositionJob : IJobProcessComponentData<RealVoice, VoiceHandle>
+//    {
+//        [ReadOnly] public ComponentDataFromEntity<InstanceHandle> InstanceHandle;
+//        public ComponentDataFromEntity<Position> Position;
+
+//        public void Execute([ReadOnly]ref RealVoice realVoice, [ReadOnly]ref VoiceHandle voiceHandle)
+//        {
+//            Entity gameEntity = InstanceHandle[voiceHandle.InstanceEntity].GameEntity;
+//            Position[realVoice.SourceEntity] = Position[gameEntity];
+//        }
+//    }
+
+//    [Inject] ComponentDataFromEntity<InstanceHandle> _instanceHandle;
+//    [Inject] ComponentDataFromEntity<Position> _position;
+
+//    protected override JobHandle OnUpdate(JobHandle inputDeps)
+//    {
+//        return new AudioSourcePositionJob
+//        {
+//            InstanceHandle = _instanceHandle,
+//            Position = _position
+//        }.Schedule(this, inputDeps);
+//    }
+//}
 
 //IJob version, actually way slower.
 //public class AudioSourcePositionSystem : JobComponentSystem

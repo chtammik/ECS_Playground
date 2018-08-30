@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using UnityEngine;
 
 [UpdateBefore(typeof(CopyAudioPropertiesSystem.CopyAudioPropertiesBarrier))]
-public class AssignAudioSourceIDSystem : JobComponentSystem
+public class AssignAudioSourceSystem : JobComponentSystem
 {
     public class AssignSourceIDBarrier : BarrierSystem { }
 
@@ -40,7 +40,7 @@ public class AssignAudioSourceIDSystem : JobComponentSystem
             //the vacant AudioSource is now claimed.
             CommandBuffer.AddComponent(SourceHandles[index].SourceEntity, new ClaimedByVoice(PlayRequests[index].VoiceEntity));
 
-            //the game entity is no longer requiring to obtain a voice.
+            //the voice entity is no longer requiring to obtain a voice.
             CommandBuffer.RemoveComponent<RealVoiceRequest>(PlayRequests[index].VoiceEntity);
         }
     }

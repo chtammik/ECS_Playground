@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Jobs;
 
 [UpdateBefore(typeof(ApplyAudioPropertiesSystem))]
-[UpdateAfter(typeof(AssignAudioSourceIDSystem.AssignSourceIDBarrier))]
+[UpdateAfter(typeof(AssignAudioSourceSystem.AssignSourceIDBarrier))]
 public class CopyAudioPropertiesSystem : JobComponentSystem
 {
     NativeArray<JobHandle> _jobHandles;

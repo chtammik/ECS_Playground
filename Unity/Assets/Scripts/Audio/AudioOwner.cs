@@ -10,8 +10,6 @@ public class AudioOwner : MonoBehaviour
     [SerializeField] AudioContainer _audioContainer;
     public AudioContainer AudioContainer { get { return _audioContainer; } }
     public Entity GameEntity { get; private set; }
-    public AudioInstance[] AudioInstances { get; private set; }
-    public Dictionary<AudioInstance, InstanceState> InstanceOccupation { get; set; }
 
     bool _voicesCreated;
     bool _isApplicationQuitting;
@@ -33,12 +31,12 @@ public class AudioOwner : MonoBehaviour
         if (BootstrapAudio.IfAudioServiceInitialized())
         {
             RegisterToEntityMananger();
-            CreateAudioInstances();
+            HookWithAudioContainer();
         }
         else //if AudioService is not initialized yet, then call these functions right after it's initialized.
         {
             BootstrapAudio.OnAudioServiceInitialized += RegisterToEntityMananger;
-            BootstrapAudio.OnAudioServiceInitialized += CreateAudioInstances;
+            BootstrapAudio.OnAudioServiceInitialized += HookWithAudioContainer;
             //Debug.Log(gameObject.name + " subscribed to BootstrapAudio.");
         }
     }
@@ -55,24 +53,15 @@ public class AudioOwner : MonoBehaviour
         _isApplicationQuitting = true;
     }
 
-    void CreateAudioInstances()
+    void HookWithAudioContainer()
     {
-        AudioInstances = new AudioInstance[AudioContainer.InstanceLimit];
-        InstanceOccupation = new Dictionary<AudioInstance, InstanceState>(AudioContainer.InstanceLimit);
+        _audioContainer.OnInstancePlayed += OnPlayed;
+        _audioContainer.OnInstanceStopped += OnStopped;
 
-        for (int i = 0; i < AudioInstances.Length; i++)
+        if (_audioContainer.InstanceLimit == 1)
         {
-            AudioInstances[i] = new AudioInstance();
-            AudioInstances[i].CreateVoiceEntities(this);
-            AudioInstances[i].OnInstancePlayed += OnPlayed;
-            AudioInstances[i].OnInstanceStopped += OnStopped;
-            InstanceOccupation.Add(AudioInstances[i], InstanceState.Stopped);
-        }
-
-        if (AudioInstances.Length == 1)
-        {
-            AudioInstances[0].OnInstanceMuted += OnMuted;
-            AudioInstances[0].OnInstanceUnmuted += OnUnmuted;
+            _audioContainer.OnInstanceMuted += OnMuted;
+            _audioContainer.OnInstanceUnmuted += OnUnmuted;
         }
 
         _voicesCreated = true;
@@ -113,7 +102,7 @@ public class AudioOwner : MonoBehaviour
     void OnPlayed() { OnAudioPlayed?.Invoke(); } //whenever an instance gets fired, the AudioOwner is considered played.
     void OnStopped()
     {
-        if (!InstanceOccupation.ContainsValue(InstanceState.PartiallyMuted) && !InstanceOccupation.ContainsValue(InstanceState.FullyMuted)) //it needs all instances to be stopped for the whole AudioOwner to be considered stopped.
+        if (!_audioContainer.GetInstanceUsage.ContainsValue(true)) //it needs all instances to be stopped for the whole AudioOwner to be considered stopped.
             OnAudioStopped?.Invoke();
     }
     void OnMuted() { OnAudioMuted?.Invoke(); }

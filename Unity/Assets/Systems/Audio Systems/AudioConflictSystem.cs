@@ -3,9 +3,9 @@ using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
 
-[UpdateBefore(typeof(AssignAudioSourceIDSystem.AssignSourceIDBarrier))]
+[UpdateBefore(typeof(AssignAudioSourceSystem.AssignSourceIDBarrier))]
 [UpdateBefore(typeof(AudioStopSystem))]
-[UpdateBefore(typeof(AudioStopVirtualSystem.StopVirtualBarrier))]
+[UpdateBefore(typeof(AudioStopVirtualSystem))]
 [UpdateBefore(typeof(AudioMuteSystem))]
 public class AudioConflictSystem : JobComponentSystem
 {

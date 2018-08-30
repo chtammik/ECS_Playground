@@ -1,15 +1,16 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Collections;
 using UnityEngine;
 
 public struct VoiceHandle : IComponentData
 {
-    public Entity GameEntity;
+    public Entity InstanceEntity;
     public Entity VoiceEntity;
     
-    public VoiceHandle(Entity gameEntity, Entity voiceEntity)
+    public VoiceHandle(Entity instanceEntity, Entity voiceEntity)
     {
-        GameEntity = gameEntity;
+        InstanceEntity = instanceEntity;
         VoiceEntity = voiceEntity;
     }
 }
@@ -53,6 +54,39 @@ public struct ClaimedByVoice : IComponentData
     public ClaimedByVoice(Entity voiceEntity)
     {
         VoiceEntity = voiceEntity;
+    }
+}
+
+public struct InstanceHandle : IComponentData
+{
+    public Entity GameEntity;
+    public int VoiceCount;
+
+    public InstanceHandle(Entity gameEntity, int voiceCount)
+    {
+        GameEntity = gameEntity;
+        VoiceCount = voiceCount;
+    }
+}
+
+public struct InstanceClaimed : IComponentData
+{
+    public int PlayingVoiceCount;
+    public int VirtualVoiceCount;
+
+    public InstanceClaimed(int playingVoiceCount, int virtualVoiceCount)
+    {
+        PlayingVoiceCount = playingVoiceCount;
+        VirtualVoiceCount = virtualVoiceCount;
+    }
+}
+public struct InstanceMuted : IComponentData
+{
+    public Entity InstanceEntity;
+
+    public InstanceMuted(Entity instanceEntity)
+    {
+        InstanceEntity = instanceEntity;
     }
 }
 
@@ -116,44 +150,46 @@ public struct AudioProperty_Loop : IComponentData
     }
 }
 
-public struct AudioMessage_Played : IComponentData
+public struct AudioMessage_InstancePlayed : IComponentData
 {
-    public Entity VoiceEntity;
+    public Entity InstanceEntity;
 
-    public AudioMessage_Played(Entity voiceEntity)
+    public AudioMessage_InstancePlayed(Entity instanceEntity)
     {
-        VoiceEntity = voiceEntity;
+        InstanceEntity = instanceEntity;
     }
 }
 
-public struct AudioMessage_Stopped : IComponentData
+public struct AudioMessage_InstanceStopped : IComponentData
 {
-    public Entity VoiceEntity;
+    public Entity InstanceEntity;
 
-    public AudioMessage_Stopped(Entity voiceEntity)
+    public AudioMessage_InstanceStopped(Entity instanceEntity)
     {
-        VoiceEntity = voiceEntity;
+        InstanceEntity = instanceEntity;
     }
 }
 
-public struct AudioMessage_Muted : IComponentData
+public struct AudioMessage_InstanceMuted : IComponentData
 {
-    public Entity VoiceEntity;
+    public Entity InstanceEntity;
 
-    public AudioMessage_Muted(Entity voiceEntity)
+    public AudioMessage_InstanceMuted(Entity instanceEntity)
     {
-        VoiceEntity = voiceEntity;
+        InstanceEntity = instanceEntity;
     }
 }
 
-public struct AudioMessage_Unmuted : IComponentData
+public struct AudioMessage_InstanceUnmuted : IComponentData
 {
-    public Entity VoiceEntity;
+    public Entity InstanceEntity;
 
-    public AudioMessage_Unmuted(Entity voiceEntity)
+    public AudioMessage_InstanceUnmuted(Entity instanceEntity)
     {
-        VoiceEntity = voiceEntity;
+        InstanceEntity = instanceEntity;
     }
 }
+
+
 
 

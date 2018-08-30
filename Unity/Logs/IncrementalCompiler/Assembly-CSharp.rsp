@@ -5,6 +5,23 @@
 -out:Z:/Github/ECS_Playground/Unity/Temp/Assembly-CSharp.dll
 -nostdlib
 -unsafe
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Transforms.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Entities.Properties.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Jobs.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Jobs.Editor.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Entities.Editor.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Properties.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Collections.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Burst.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Rendering.Hybrid.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Properties.Editor.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Entities.Hybrid.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Mathematics.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Entities.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Burst.Editor.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Transforms2D.dll
+-r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Transforms.Hybrid.dll
 -r:Z:\Unity\2018.1.7f1\Editor\Data\Managed/UnityEngine/UnityEngine.dll
 -r:Z:\Unity\2018.1.7f1\Editor\Data\Managed/UnityEngine/UnityEngine.AIModule.dll
 -r:Z:\Unity\2018.1.7f1\Editor\Data\Managed/UnityEngine/UnityEngine.ARModule.dll
@@ -65,23 +82,6 @@
 -r:Z:\Unity\2018.1.7f1\Editor\Data\Managed/UnityEngine/UnityEngine.XRModule.dll
 -r:Z:\Unity\2018.1.7f1\Editor\Data\Managed/UnityEditor.dll
 -r:Z:\Unity\2018.1.7f1\Editor\Data\Managed/Unity.Locator.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Transforms.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Entities.Properties.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Jobs.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Jobs.Editor.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Entities.Editor.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Properties.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Collections.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Burst.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Rendering.Hybrid.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Properties.Editor.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Entities.Hybrid.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Mathematics.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Entities.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Burst.Editor.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Transforms2D.dll
--r:Z:/Github/ECS_Playground/Unity/Library/ScriptAssemblies/Unity.Transforms.Hybrid.dll
 -r:Z:/Unity/2018.1.7f1/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll
 -r:Z:/Unity/2018.1.7f1/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll
 -r:Z:/Unity/2018.1.7f1/Editor/Data/UnityExtensions/Unity/Timeline/RuntimeEditor/UnityEngine.Timeline.dll
@@ -305,23 +305,23 @@
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioAsset.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioClipList.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioContainer.cs
--i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioInstance.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioOwner.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioService.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/AudioSourcePool.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Audio/BootstrapAudio.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/Bootstrap.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/CowGenerator.cs
+-i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/MFilter.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/MoveMusician.cs
 -i:Z:/Github/ECS_Playground/Unity/Assets/Scripts/PerformMusic.cs
 -i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/ApplyAudioPropertiesSystem.cs"
--i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/AssignAudioSourceIDSystem.cs"
+-i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/AssignAudioSourceSystem.cs"
+-i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/AudioComponentCleanUpSystem.cs"
 -i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/AudioConflictSystem.cs"
 -i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/AudioInfoGUISystem.cs"
 -i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/AudioMessageSystem.cs"
 -i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/AudioMuteSystem.cs"
 -i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/AudioPlaySystem.cs"
--i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/AudioPropertiesCleanUpSystem.cs"
 -i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/AudioSourcePositionSystem.cs"
 -i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/AudioStopSystem.cs"
 -i:"Z:/Github/ECS_Playground/Unity/Assets/Systems/Audio Systems/AudioStopVirtualSystem.cs"

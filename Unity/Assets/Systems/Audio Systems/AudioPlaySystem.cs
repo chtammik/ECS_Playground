@@ -1,6 +1,8 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
+using System.Collections.Generic;
+using System;
 
 [UpdateAfter(typeof(ApplyAudioPropertiesSystem))]
 public class AudioPlaySystem : ComponentSystem
@@ -27,17 +29,28 @@ public class AudioPlaySystem : ComponentSystem
     }
     [Inject] ToPlayVirtuallyGroup _toPlayVirtuallyGroup;
 
-    [Inject] ComponentDataFromEntity<DSPTimeOnPlay> _timeOnPlay;
+    [Inject] ComponentDataFromEntity<DSPTimeOnPlay> _timeOnPlay; //DSPTimeOnPlay is the only property that needs to be applied in the AudioPlaySystem because of the need for precision.
+    [Inject] ComponentDataFromEntity<VoiceHandle> _voiceHandle;
+    [Inject] ComponentDataFromEntity<InstanceClaimed> _instanceClaimed;
+    [Inject] ComponentDataFromEntity<InstanceMuted> _instanceMuted;
+    [Inject] ComponentDataFromEntity<InstanceHandle> _instanceHandle;
 
     protected override void OnUpdate()
     {
+        Dictionary<Entity, Tuple<int, int>> cachedCount = new Dictionary<Entity, Tuple<int, int>>();
+
         for (int i = 0; i < _toPlayGroup.Length; i++)
         {
             Entity sourceEntity = _toPlayGroup.Entities[i];
             Entity voiceEntity = _toPlayGroup.Claimeds[i].VoiceEntity;
             AudioSource audioSource = _toPlayGroup.AudioSources[i];
 
-            if (_timeOnPlay.Exists(sourceEntity)) //DSPTimeOnPlay is the only property that needs to be applied in the AudioPlaySystem because of the need for precision.
+            Entity instanceEntity = _voiceHandle[voiceEntity].InstanceEntity;
+            int previousPlayingCount = _instanceClaimed[instanceEntity].PlayingVoiceCount;
+            int previousVirtualCount = _instanceClaimed[instanceEntity].VirtualVoiceCount;
+            int totalVoiceCount = _instanceHandle[instanceEntity].VoiceCount;
+
+            if (_timeOnPlay.Exists(sourceEntity)) //de-virtualize voice
             {
                 double currentTime = AudioSettings.dspTime;
                 double lastTimeStarted = _timeOnPlay[sourceEntity].Time;
@@ -50,14 +63,44 @@ public class AudioPlaySystem : ComponentSystem
                 else
                     audioSource.timeSamples = (int)((samplesSinceLastTimeStarted % (clipTotalSamples * ((double)outputSampleRate / clipSampleRate))) * ((double)clipSampleRate / outputSampleRate));
                 PostUpdateCommands.RemoveComponent<VirtualVoice>(voiceEntity);
-                PostUpdateCommands.AddComponent(voiceEntity, new AudioMessage_Unmuted(voiceEntity));
+
+                if (totalVoiceCount == 1)
+                {
+                    PostUpdateCommands.SetComponent(instanceEntity, new InstanceClaimed(1, 0));
+                    if (_instanceMuted.Exists(instanceEntity))
+                    {
+                        PostUpdateCommands.RemoveComponent<InstanceMuted>(instanceEntity);
+                        PostUpdateCommands.AddComponent(instanceEntity, new AudioMessage_InstanceUnmuted(instanceEntity));
+                    }
+                }
+                else
+                {
+                    if (cachedCount.TryGetValue(instanceEntity, out Tuple<int, int> voiceInfo))
+                        cachedCount[instanceEntity] = new Tuple<int, int>(voiceInfo.Item1, voiceInfo.Item2 - 1);
+                    else
+                        cachedCount.Add(instanceEntity, new Tuple<int, int>(previousPlayingCount, previousVirtualCount - 1));
+                }
+
             }
-            else
+
+            else //playing new voice.
             {
                 PostUpdateCommands.AddComponent(sourceEntity, new DSPTimeOnPlay(sourceEntity, AudioSettings.dspTime));
-                PostUpdateCommands.AddComponent(voiceEntity, new AudioMessage_Played(voiceEntity));
+
+                if (totalVoiceCount == 1)
+                {
+                    PostUpdateCommands.SetComponent(instanceEntity, new InstanceClaimed(1, 0));
+                    PostUpdateCommands.AddComponent(instanceEntity, new AudioMessage_InstancePlayed(instanceEntity));
+                }
+                else
+                {
+                    if (cachedCount.TryGetValue(instanceEntity, out Tuple<int, int> voiceInfo))
+                        cachedCount[instanceEntity] = new Tuple<int, int>(voiceInfo.Item1 + 1, voiceInfo.Item2);
+                    else
+                        cachedCount.Add(instanceEntity, new Tuple<int, int>(previousPlayingCount + 1, previousVirtualCount));
+                }
             }
-                
+
             audioSource.Play();
 
             PostUpdateCommands.RemoveComponent<ReadToPlay>(sourceEntity);
@@ -70,8 +113,46 @@ public class AudioPlaySystem : ComponentSystem
             Entity voiceEntity = _toPlayVirtuallyGroup.Entities[i];
             PostUpdateCommands.AddComponent(voiceEntity, new DSPTimeOnPlay(voiceEntity, AudioSettings.dspTime));
             PostUpdateCommands.AddComponent(voiceEntity, new VirtualVoice(voiceEntity));
-            PostUpdateCommands.AddComponent(voiceEntity, new AudioMessage_Played(voiceEntity));
-            PostUpdateCommands.AddComponent(voiceEntity, new AudioMessage_Muted(voiceEntity));
+
+            Entity instanceEntity = _voiceHandle[voiceEntity].InstanceEntity;
+            int previousPlayingCount = _instanceClaimed[instanceEntity].PlayingVoiceCount;
+            int previousVirtualCount = _instanceClaimed[instanceEntity].VirtualVoiceCount;
+            int totalVoiceCount = _instanceHandle[instanceEntity].VoiceCount;
+
+            if (totalVoiceCount == 1)
+            {
+                PostUpdateCommands.SetComponent(instanceEntity, new InstanceClaimed(1, 1));
+                PostUpdateCommands.AddComponent(instanceEntity, new AudioMessage_InstancePlayed(instanceEntity));
+            }
+            else
+            {
+                if (cachedCount.TryGetValue(instanceEntity, out Tuple<int, int> voiceInfo))
+                    cachedCount[instanceEntity] = new Tuple<int, int>(voiceInfo.Item1 + 1, voiceInfo.Item2 + 1);
+                else
+                    cachedCount.Add(instanceEntity, new Tuple<int, int>(previousPlayingCount + 1, previousVirtualCount + 1));
+            }
+        }
+
+        foreach (KeyValuePair<Entity, Tuple<int, int>> pair in cachedCount)
+        {
+            Entity instanceEntity = pair.Key;
+            int newPlayingCount = pair.Value.Item1;
+            int newVirtualCount = pair.Value.Item2;
+            int totalVoiceCount = _instanceHandle[instanceEntity].VoiceCount;
+
+            PostUpdateCommands.SetComponent(instanceEntity, new InstanceClaimed(newPlayingCount, newVirtualCount));
+            if (newPlayingCount >= 1)
+                PostUpdateCommands.AddComponent(instanceEntity, new AudioMessage_InstancePlayed(instanceEntity));
+            if (newVirtualCount == totalVoiceCount)
+            {
+                PostUpdateCommands.AddComponent(instanceEntity, new InstanceMuted(instanceEntity));
+                PostUpdateCommands.AddComponent(instanceEntity, new AudioMessage_InstanceMuted(instanceEntity));
+            }
+            if (newVirtualCount == 0 && _instanceMuted.Exists(instanceEntity))
+            {
+                PostUpdateCommands.RemoveComponent<InstanceMuted>(instanceEntity);
+                PostUpdateCommands.AddComponent(instanceEntity, new AudioMessage_InstanceUnmuted(instanceEntity));
+            }
         }
     }
 }

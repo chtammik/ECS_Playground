@@ -23,7 +23,6 @@ public class PerformMusic : MonoBehaviour
     void Start()
     {
         _audioOwner.Play();
-        _performing = true;
     }
 
     void OnDisable()
