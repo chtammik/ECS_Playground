@@ -322,6 +322,60 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &462381640
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 462381641}
+  - component: {fileID: 462381643}
+  - component: {fileID: 462381642}
+  m_Layer: 0
+  m_Name: Machine Gun
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &462381641
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 462381640}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.50699663, y: -0.01317215, z: 2.4381166}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &462381642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 462381640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62875667cc3385a42ae4e3e057297cb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _audioContainer: {fileID: 11400000, guid: 796b3d150ed74854aacba2877e8310b2, type: 2}
+--- !u!114 &462381643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 462381640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f2b6aa44de6cbe449c6b501b6584a5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _fireKey: 32
 --- !u!1001 &572400857
 Prefab:
   m_ObjectHideFlags: 0
@@ -480,7 +534,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &672089619
 Transform:
   m_ObjectHideFlags: 0
@@ -592,7 +646,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &802576178
 Transform:
   m_ObjectHideFlags: 0
@@ -714,7 +768,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1106890681
 Transform:
   m_ObjectHideFlags: 0
@@ -1011,7 +1065,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1340355776
 Transform:
   m_ObjectHideFlags: 0
@@ -1312,8 +1366,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc8a002c0a4844d4eb84979311dc6551, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _poolSize: 9
-  _clipList: {fileID: 11400000, guid: 03f8ad0a349e381448b0ea636431c649, type: 2}
+  _poolSize: 15
+  _clipList: {fileID: 11400000, guid: 259b337c603b21c4a9af8d98b5b2a5af, type: 2}
 --- !u!4 &1854569797 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4702763864090682, guid: bf80ad0fa070a2146b4c30ad54f9b7a3,
@@ -1419,7 +1473,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2078578471
 Transform:
   m_ObjectHideFlags: 0

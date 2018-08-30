@@ -64,7 +64,7 @@ public class AudioMessageSystem : ComponentSystem
         {
             Entity instanceEntity = _audioMutedGroup.Muted[i].InstanceEntity;   
             AudioContainer audioContainer = AudioContainerFindBook[instanceEntity];
-            audioContainer.OnMuted();
+            audioContainer.OnMuted(instanceEntity);
             PostUpdateCommands.RemoveComponent<AudioMessage_InstanceMuted>(instanceEntity);
         }
 
@@ -72,7 +72,7 @@ public class AudioMessageSystem : ComponentSystem
         {
             Entity instanceEntity = _audioUnmutedGroup.Unmuted[i].InstanceEntity;
             AudioContainer audioContainer = AudioContainerFindBook[instanceEntity];
-            audioContainer.OnUnmuted();
+            audioContainer.OnUnmuted(instanceEntity);
             PostUpdateCommands.RemoveComponent<AudioMessage_InstanceUnmuted>(instanceEntity);
         }
     }

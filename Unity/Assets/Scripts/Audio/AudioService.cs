@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using Unity.Entities;
-using System.Threading;
+using System;
 using Unity.Transforms;
 
 public sealed class AudioService
@@ -49,7 +49,7 @@ public sealed class AudioService
     public static AudioClip GetAudioClip(int index) { return s_clipList.Clips[index]; }
     public static float GetClipLength(int index) { return s_clipList.Lengths[index]; }
 
-    public static void Play(AudioOwner audioOwner)
+    public static Entity Play(AudioOwner audioOwner)
     {
         Entity instanceEntity = Entity.Null;
         Entity[] instanceEntities = audioOwner.AudioContainer.GetInstanceEntities;
@@ -71,7 +71,7 @@ public sealed class AudioService
 #if UNITY_EDITOR
             Debug.Log("You're trying to play " + audioOwner.gameObject.name + ", but it's exceeding the instance limit: " + audioOwner.AudioContainer.InstanceLimit);
 #endif
-            return;
+            return Entity.Null;
         }
 
         s_entityManager.SetComponentData(instanceEntity, new InstanceHandle(audioOwner.GameEntity, voiceCount));
@@ -99,6 +99,8 @@ public sealed class AudioService
         }
 
         s_entityManager.AddComponentData(instanceEntity, new InstanceClaimed(0, 0));
+
+        return instanceEntity;
     }
 
     public static void Stop(AudioOwner audioOwner)
@@ -135,7 +137,7 @@ public sealed class AudioService
     public static void Mute(AudioOwner audioOwner)
     {
         Entity instanceEntity = Entity.Null;
-        Entity[] instanceEntities = audioOwner.AudioContainer.GetInstanceEntities;
+        Entity[] instanceEntities = audioOwner.OccupiedInstances.ToArray();
         int instanceIndex = -1;
         Entity[] voiceEntities = audioOwner.AudioContainer.GetVoiceEntities;
         int voiceCount = audioOwner.AudioContainer.VoiceCount;
@@ -145,7 +147,7 @@ public sealed class AudioService
             if (s_entityManager.HasComponent<InstanceClaimed>(instanceEntities[i]) && !s_entityManager.HasComponent<InstanceMuted>(instanceEntities[i]))
             {
                 instanceEntity = instanceEntities[i];
-                instanceIndex = i;
+                instanceIndex = audioOwner.AudioContainer.InstanceIndex[instanceEntity];
             }
             else
                 continue;
@@ -172,7 +174,7 @@ public sealed class AudioService
     public static void Unmute(AudioOwner audioOwner)
     {
         Entity instanceEntity = Entity.Null;
-        Entity[] instanceEntities = audioOwner.AudioContainer.GetInstanceEntities;
+        Entity[] instanceEntities = audioOwner.OccupiedInstances.ToArray();
         int instanceIndex = -1;
         Entity[] voiceEntities = audioOwner.AudioContainer.GetVoiceEntities;
         int voiceCount = audioOwner.AudioContainer.VoiceCount;
@@ -182,7 +184,7 @@ public sealed class AudioService
             if (s_entityManager.HasComponent<InstanceClaimed>(instanceEntities[i]) && s_entityManager.HasComponent<InstanceMuted>(instanceEntities[i]))
             {
                 instanceEntity = instanceEntities[i];
-                instanceIndex = i;
+                instanceIndex = audioOwner.AudioContainer.InstanceIndex[instanceEntity];
             }
             else
                 continue;

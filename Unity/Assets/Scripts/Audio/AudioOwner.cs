@@ -10,6 +10,7 @@ public class AudioOwner : MonoBehaviour
     [SerializeField] AudioContainer _audioContainer;
     public AudioContainer AudioContainer { get { return _audioContainer; } }
     public Entity GameEntity { get; private set; }
+    public List<Entity> OccupiedInstances { get; private set; }
 
     bool _voicesCreated;
     bool _isApplicationQuitting;
@@ -22,9 +23,13 @@ public class AudioOwner : MonoBehaviour
     /// </summary>
     public event PlaybackMessage OnAudioMuted;
     /// <summary>
-    /// Only will be called when there's only one instance allowed and one voice involved.
+    /// Only will be called when there's only one instance allowed.
     /// </summary>
     public event PlaybackMessage OnAudioUnmuted;
+
+    public int GetClipID(int index) { return AudioContainer.GetAudioElements[index].GetAudioAsset.GetClipID; }
+    public float GetSpatialBlend(int index) { return AudioContainer.GetAudioElements[index].GetSpatialBlend; }
+    public bool GetLoop(int index) { return AudioContainer.GetAudioElements[index].GetLoop; }
 
     void Awake()
     {
@@ -55,14 +60,11 @@ public class AudioOwner : MonoBehaviour
 
     void HookWithAudioContainer()
     {
+        OccupiedInstances = new List<Entity>(_audioContainer.InstanceLimit);
         _audioContainer.OnInstancePlayed += OnPlayed;
         _audioContainer.OnInstanceStopped += OnStopped;
-
-        if (_audioContainer.InstanceLimit == 1)
-        {
-            _audioContainer.OnInstanceMuted += OnMuted;
-            _audioContainer.OnInstanceUnmuted += OnUnmuted;
-        }
+        _audioContainer.OnInstanceMuted += OnMuted;
+        _audioContainer.OnInstanceUnmuted += OnUnmuted;
 
         _voicesCreated = true;
     }
@@ -72,7 +74,11 @@ public class AudioOwner : MonoBehaviour
     public void Play()
     {
         if (_voicesCreated)
-            AudioService.Play(this);
+        {
+            Entity instanceEntity = AudioService.Play(this);
+            if (instanceEntity != Entity.Null)
+                OccupiedInstances.Add(instanceEntity);
+        }
         else
             BootstrapAudio.OnAudioServiceInitialized += Play; //will play right after the AudioService is initialized and voices are created;
     }
@@ -95,16 +101,28 @@ public class AudioOwner : MonoBehaviour
             AudioService.Unmute(this);
     }
 
-    public int GetClipID(int index) { return AudioContainer.GetAudioElements[index].GetAudioAsset.GetClipID; }
-    public float GetSpatialBlend(int index) { return AudioContainer.GetAudioElements[index].GetSpatialBlend; }
-    public bool GetLoop(int index) { return AudioContainer.GetAudioElements[index].GetLoop; }
-
-    void OnPlayed() { OnAudioPlayed?.Invoke(); } //whenever an instance gets fired, the AudioOwner is considered played.
-    void OnStopped()
+    void OnPlayed(Entity instanceEntity) //whenever an instance gets fired, the AudioOwner is considered played.
     {
-        if (!_audioContainer.GetInstanceUsage.ContainsValue(true)) //it needs all instances to be stopped for the whole AudioOwner to be considered stopped.
-            OnAudioStopped?.Invoke();
+        if (OccupiedInstances.Contains(instanceEntity))
+            OnAudioPlayed?.Invoke();
     }
-    void OnMuted() { OnAudioMuted?.Invoke(); }
-    void OnUnmuted() { OnAudioUnmuted?.Invoke(); }
+    void OnStopped(Entity instanceEntity)
+    {
+        if (OccupiedInstances.Contains(instanceEntity))
+        {
+            OccupiedInstances.Remove(instanceEntity);
+            if (OccupiedInstances.Count == 0) //it needs all instances to be stopped for the whole AudioOwner to be considered stopped.
+                OnAudioStopped?.Invoke();
+        }
+    }
+    void OnMuted(Entity instanceEntity)
+    {
+        if (OccupiedInstances.Count == 1 && OccupiedInstances.Contains(instanceEntity))
+            OnAudioMuted?.Invoke();
+    }
+    void OnUnmuted(Entity instanceEntity)
+    {
+        if (OccupiedInstances.Count == 1 && OccupiedInstances.Contains(instanceEntity))
+            OnAudioUnmuted?.Invoke();
+    }
 }

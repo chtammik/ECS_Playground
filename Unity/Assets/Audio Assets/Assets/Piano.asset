@@ -11,4 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 711576ab331137e46a11c16087f846f2, type: 3}
   m_Name: Piano
   m_EditorClassIdentifier: 
-  _clipID: 3
+  _clipID: 10

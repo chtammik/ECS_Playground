@@ -10,16 +10,15 @@ public class AudioContainer : ScriptableObject
     [SerializeField] AudioElement[] _audioElements;
     [NonSerialized] Entity[] _instanceEntities;
     [NonSerialized] Entity[] _voiceEntities;
-    [NonSerialized] Dictionary<Entity, bool> _instanceUsage;
 
     public AudioElement[] GetAudioElements { get { return _audioElements; } }
     public int VoiceCount { get { return _audioElements.Length; } }
     public int InstanceLimit { get { return _instanceLimit; } }
     public Entity[] GetInstanceEntities { get { return _instanceEntities; } }
     public Entity[] GetVoiceEntities { get { return _voiceEntities; } }
-    public Dictionary<Entity, bool> GetInstanceUsage { get { return _instanceUsage; } }
+    public Dictionary<Entity, int> InstanceIndex { get; private set; }
 
-    public delegate void PlaybackMessage();
+    public delegate void PlaybackMessage(Entity instanceEntity);
     public event PlaybackMessage OnInstancePlayed;
     public event PlaybackMessage OnInstanceStopped;
     public event PlaybackMessage OnInstanceMuted;
@@ -34,12 +33,12 @@ public class AudioContainer : ScriptableObject
     {
         _instanceEntities = new Entity[_instanceLimit];
         _voiceEntities = new Entity[VoiceCount * _instanceLimit];
-        _instanceUsage = new Dictionary<Entity, bool>(_instanceLimit);
+        InstanceIndex = new Dictionary<Entity, int>(_instanceLimit);
         for (int i = 0; i < _instanceEntities.Length; i++)
         {
             _instanceEntities[i] = entityManager.CreateEntity(typeof(InstanceHandle));
-            _instanceUsage.Add(_instanceEntities[i], false);
             AudioMessageSystem.AddAudioContainer(_instanceEntities[i], this);
+            InstanceIndex.Add(_instanceEntities[i], i);
             for (int j = 0; j < VoiceCount; j++)
             {
                 Entity voiceEntity = entityManager.CreateEntity(typeof(VoiceHandle));
@@ -49,19 +48,10 @@ public class AudioContainer : ScriptableObject
         }
     }
 
-    public void OnPlayed(Entity instanceEntity)
-    {
-        _instanceUsage[instanceEntity] = true;
-        OnInstancePlayed?.Invoke();
-    }
-    public void OnStopped(Entity instanceEntity)
-    {
-        _instanceUsage[instanceEntity] = false;
-        OnInstanceStopped?.Invoke();
-    }
-    public void OnMuted() { OnInstanceMuted?.Invoke(); }
-    public void OnUnmuted() { OnInstanceUnmuted?.Invoke(); }
-
+    public void OnPlayed(Entity instanceEntity) { OnInstancePlayed?.Invoke(instanceEntity); }
+    public void OnStopped(Entity instanceEntity) { OnInstanceStopped?.Invoke(instanceEntity); }
+    public void OnMuted(Entity instanceEntity) { OnInstanceMuted?.Invoke(instanceEntity); }
+    public void OnUnmuted(Entity instanceEntity) { OnInstanceUnmuted?.Invoke(instanceEntity); }
 }
 
 [Serializable]

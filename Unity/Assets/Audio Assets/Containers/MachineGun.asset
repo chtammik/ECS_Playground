@@ -8,7 +8,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 711576ab331137e46a11c16087f846f2, type: 3}
-  m_Name: Music Box
+  m_Script: {fileID: 11500000, guid: e54ebd9025c7e164e8819ee47c9ac187, type: 3}
+  m_Name: MachineGun
   m_EditorClassIdentifier: 
-  _clipID: 9
+  _instanceLimit: 3
+  _audioElements:
+  - _audioAssets: {fileID: 11400000, guid: 057c4b608de4e934c894cce9387a46ad, type: 2}
+    _spatialBlend: 0
+    _loop: 0

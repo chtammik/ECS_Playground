@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e54ebd9025c7e164e8819ee47c9ac187, type: 3}
   m_Name: Strings
   m_EditorClassIdentifier: 
-  _instanceLimit: 1
+  _instanceLimit: 2
   _audioElements:
   - _audioAssets: {fileID: 11400000, guid: a24a2b96f34fa164fa37f7f3fee74684, type: 2}
     _spatialBlend: 0
