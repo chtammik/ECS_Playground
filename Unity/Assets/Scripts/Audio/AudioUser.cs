@@ -5,7 +5,7 @@ using Unity.Entities;
 
 public enum PlaybackMessageType { Played, Stopped, Muted, Unmuted }
 
-public class AudioOwner : MonoBehaviour
+public class AudioUser : MonoBehaviour
 {
     [SerializeField] AudioContainer _audioContainer;
     public AudioContainer AudioContainer { get { return _audioContainer; } }
@@ -50,7 +50,7 @@ public class AudioOwner : MonoBehaviour
     {
         if (_isApplicationQuitting) //so that the DeRegister won't be called after exiting play mode and throw exceptions.
             return;
-        AudioService.DeRegisterAudioOwner(this);
+        AudioService.DeRegisterAudioUser(this);
     }
 
     void OnApplicationQuit()
@@ -69,7 +69,7 @@ public class AudioOwner : MonoBehaviour
         _voicesCreated = true;
     }
 
-    void RegisterToEntityMananger() { GameEntity = AudioService.RegisterAudioOwner(this); }
+    void RegisterToEntityMananger() { GameEntity = AudioService.RegisterAudioUser(this); }
 
     public void Play()
     {
@@ -101,7 +101,7 @@ public class AudioOwner : MonoBehaviour
             AudioService.Unmute(this);
     }
 
-    void OnPlayed(Entity instanceEntity) //whenever an instance gets fired, the AudioOwner is considered played.
+    void OnPlayed(Entity instanceEntity) //whenever an instance gets fired, the AudioUser is considered played.
     {
         if (OccupiedInstances.Contains(instanceEntity))
             OnAudioPlayed?.Invoke();
@@ -111,7 +111,7 @@ public class AudioOwner : MonoBehaviour
         if (OccupiedInstances.Contains(instanceEntity))
         {
             OccupiedInstances.Remove(instanceEntity);
-            if (OccupiedInstances.Count == 0) //it needs all instances to be stopped for the whole AudioOwner to be considered stopped.
+            if (OccupiedInstances.Count == 0) //it needs all instances to be stopped for the whole AudioUser to be considered stopped.
                 OnAudioStopped?.Invoke();
         }
     }

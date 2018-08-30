@@ -27,15 +27,15 @@ public sealed class AudioService
 
     public static void RegisterAudioContainer(AudioContainer audioContainer) { s_audioContainers.Add(audioContainer); }
 
-    public static Entity RegisterAudioOwner(AudioOwner audioOwner)
+    public static Entity RegisterAudioUser(AudioUser audioUser)
     {
-        Entity audioOwnerEntity = GameObjectEntity.AddToEntityManager(s_entityManager, audioOwner.gameObject);
-        s_entityManager.AddComponentData(audioOwnerEntity, new Position(audioOwner.transform.position));
-        s_entityManager.AddComponentData(audioOwnerEntity, new CopyTransformFromGameObject());
-        return audioOwnerEntity;
+        Entity audioUserEntity = GameObjectEntity.AddToEntityManager(s_entityManager, audioUser.gameObject);
+        s_entityManager.AddComponentData(audioUserEntity, new Position(audioUser.transform.position));
+        s_entityManager.AddComponentData(audioUserEntity, new CopyTransformFromGameObject());
+        return audioUserEntity;
     }
 
-    public static void DeRegisterAudioOwner(AudioOwner audioOwner) { s_entityManager.DestroyEntity(audioOwner.GameEntity); }
+    public static void DeRegisterAudioUser(AudioUser audioUser) { s_entityManager.DestroyEntity(audioUser.GameEntity); }
 
     public static void ResetAudioSource(AudioSource audioSource)
     {
@@ -44,17 +44,21 @@ public sealed class AudioService
         audioSource.loop = false;
         audioSource.spatialBlend = 0;
         audioSource.timeSamples = 0;
+        audioSource.dopplerLevel = 0;
+        audioSource.minDistance = 1;
+        audioSource.maxDistance = 20;
+        audioSource.rolloffMode = AudioRolloffMode.Linear;
     }
 
     public static AudioClip GetAudioClip(int index) { return s_clipList.Clips[index]; }
     public static float GetClipLength(int index) { return s_clipList.Lengths[index]; }
 
-    public static Entity Play(AudioOwner audioOwner)
+    public static Entity Play(AudioUser audioUser)
     {
         Entity instanceEntity = Entity.Null;
-        Entity[] instanceEntities = audioOwner.AudioContainer.GetInstanceEntities;
+        Entity[] instanceEntities = audioUser.AudioContainer.GetInstanceEntities;
         int instanceIndex = -1;
-        int voiceCount = audioOwner.AudioContainer.VoiceCount;
+        int voiceCount = audioUser.AudioContainer.VoiceCount;
 
         for (int i = 0; i < instanceEntities.Length; i++)
         {
@@ -69,31 +73,31 @@ public sealed class AudioService
         if (instanceEntity == Entity.Null || instanceIndex < 0)
         {
 #if UNITY_EDITOR
-            Debug.Log("You're trying to play " + audioOwner.gameObject.name + ", but it's exceeding the instance limit: " + audioOwner.AudioContainer.InstanceLimit);
+            Debug.Log("You're trying to play " + audioUser.gameObject.name + ", but it's exceeding the instance limit: " + audioUser.AudioContainer.InstanceLimit);
 #endif
             return Entity.Null;
         }
 
-        s_entityManager.SetComponentData(instanceEntity, new InstanceHandle(audioOwner.GameEntity, voiceCount));
-        Entity[] voiceEntities = audioOwner.AudioContainer.GetVoiceEntities;
+        s_entityManager.SetComponentData(instanceEntity, new InstanceHandle(audioUser.GameEntity, voiceCount));
+        Entity[] voiceEntities = audioUser.AudioContainer.GetVoiceEntities;
 
         for (int i = 0; i < voiceCount; i++)
         {
             Entity voiceEntity = voiceEntities[instanceIndex * voiceCount + i];
             if (s_entityManager.HasComponent<RealVoice>(voiceEntity) || s_entityManager.HasComponent<VirtualVoice>(voiceEntity))
             {
-                Debug.LogWarning("You're trying to play " + audioOwner.gameObject.name + ", which is already playing."); //get rid of this when blending mode is implemented.
+                Debug.LogWarning("You're trying to play " + audioUser.gameObject.name + ", which is already playing."); //get rid of this when blending mode is implemented.
                 continue;
             }
 
             s_entityManager.AddComponentData(voiceEntity, new RealVoiceRequest(voiceEntity));
-            s_entityManager.AddComponentData(voiceEntity, new AudioProperty_AudioClipID(voiceEntity, audioOwner.GetClipID(i)));
+            s_entityManager.AddComponentData(voiceEntity, new AudioProperty_AudioClipID(voiceEntity, audioUser.GetClipID(i)));
 
-            var blend = audioOwner.GetSpatialBlend(i);
+            var blend = audioUser.GetSpatialBlend(i);
             if (blend != 0)
                 s_entityManager.AddComponentData(voiceEntity, new AudioProperty_SpatialBlend(voiceEntity, blend));
 
-            var loop = audioOwner.GetLoop(i);
+            var loop = audioUser.GetLoop(i);
             if (loop)
                 s_entityManager.AddComponentData(voiceEntity, new AudioProperty_Loop(voiceEntity));
         }
@@ -103,13 +107,13 @@ public sealed class AudioService
         return instanceEntity;
     }
 
-    public static void Stop(AudioOwner audioOwner)
+    public static void Stop(AudioUser audioUser)
     {
         Entity instanceEntity = Entity.Null;
-        Entity[] instanceEntities = audioOwner.AudioContainer.GetInstanceEntities;
+        Entity[] instanceEntities = audioUser.AudioContainer.GetInstanceEntities;
         int instanceIndex = -1;
-        Entity[] voiceEntities = audioOwner.AudioContainer.GetVoiceEntities;
-        int voiceCount = audioOwner.AudioContainer.VoiceCount;
+        Entity[] voiceEntities = audioUser.AudioContainer.GetVoiceEntities;
+        int voiceCount = audioUser.AudioContainer.VoiceCount;
 
         for (int i = 0; i < instanceEntities.Length; i++)
         {
@@ -126,7 +130,7 @@ public sealed class AudioService
                 Entity voiceEntity = voiceEntities[instanceIndex * voiceCount + j];
                 if (!s_entityManager.HasComponent<VirtualVoice>(voiceEntity) && !s_entityManager.HasComponent<RealVoice>(voiceEntity))
                 {
-                    Debug.LogWarning("You're trying to stop " + audioOwner.gameObject.name + ", which is not playing."); //get rid of this when blending mode is implemented.
+                    Debug.LogWarning("You're trying to stop " + audioUser.gameObject.name + ", which is not playing."); //get rid of this when blending mode is implemented.
                     continue;
                 }
                 s_entityManager.AddSharedComponentData(voiceEntity, new StopRequest());
@@ -134,20 +138,20 @@ public sealed class AudioService
         }
     }
 
-    public static void Mute(AudioOwner audioOwner)
+    public static void Mute(AudioUser audioUser)
     {
         Entity instanceEntity = Entity.Null;
-        Entity[] instanceEntities = audioOwner.OccupiedInstances.ToArray();
+        Entity[] instanceEntities = audioUser.OccupiedInstances.ToArray();
         int instanceIndex = -1;
-        Entity[] voiceEntities = audioOwner.AudioContainer.GetVoiceEntities;
-        int voiceCount = audioOwner.AudioContainer.VoiceCount;
+        Entity[] voiceEntities = audioUser.AudioContainer.GetVoiceEntities;
+        int voiceCount = audioUser.AudioContainer.VoiceCount;
 
         for (int i = 0; i < instanceEntities.Length; i++)
         {
             if (s_entityManager.HasComponent<InstanceClaimed>(instanceEntities[i]) && !s_entityManager.HasComponent<InstanceMuted>(instanceEntities[i]))
             {
                 instanceEntity = instanceEntities[i];
-                instanceIndex = audioOwner.AudioContainer.InstanceIndex[instanceEntity];
+                instanceIndex = audioUser.AudioContainer.InstanceIndex[instanceEntity];
             }
             else
                 continue;
@@ -157,12 +161,12 @@ public sealed class AudioService
                 Entity voiceEntity = voiceEntities[instanceIndex * voiceCount + j];
                 if (s_entityManager.HasComponent<VirtualVoice>(voiceEntity) && !s_entityManager.HasComponent<RealVoiceRequest>(voiceEntity))
                 {
-                    Debug.LogWarning("You're trying to mute " + audioOwner.gameObject.name + ", which is already muted."); //get rid of this when blending mode is implemented.
+                    Debug.LogWarning("You're trying to mute " + audioUser.gameObject.name + ", which is already muted."); //get rid of this when blending mode is implemented.
                     continue;
                 }
                 if (!s_entityManager.HasComponent<VirtualVoice>(voiceEntity) && !s_entityManager.HasComponent<RealVoice>(voiceEntity))
                 {
-                    Debug.LogWarning("You're trying to mute " + audioOwner.gameObject.name + ", which is not playing."); //get rid of this when blending mode is implemented.
+                    Debug.LogWarning("You're trying to mute " + audioUser.gameObject.name + ", which is not playing."); //get rid of this when blending mode is implemented.
                     continue;
                 }
                 s_entityManager.AddSharedComponentData(voiceEntity, new MuteRequest());
@@ -171,20 +175,20 @@ public sealed class AudioService
         }
     }
 
-    public static void Unmute(AudioOwner audioOwner)
+    public static void Unmute(AudioUser audioUser)
     {
         Entity instanceEntity = Entity.Null;
-        Entity[] instanceEntities = audioOwner.OccupiedInstances.ToArray();
+        Entity[] instanceEntities = audioUser.OccupiedInstances.ToArray();
         int instanceIndex = -1;
-        Entity[] voiceEntities = audioOwner.AudioContainer.GetVoiceEntities;
-        int voiceCount = audioOwner.AudioContainer.VoiceCount;
+        Entity[] voiceEntities = audioUser.AudioContainer.GetVoiceEntities;
+        int voiceCount = audioUser.AudioContainer.VoiceCount;
 
         for (int i = 0; i < instanceEntities.Length; i++)
         {
             if (s_entityManager.HasComponent<InstanceClaimed>(instanceEntities[i]) && s_entityManager.HasComponent<InstanceMuted>(instanceEntities[i]))
             {
                 instanceEntity = instanceEntities[i];
-                instanceIndex = audioOwner.AudioContainer.InstanceIndex[instanceEntity];
+                instanceIndex = audioUser.AudioContainer.InstanceIndex[instanceEntity];
             }
             else
                 continue;
@@ -196,7 +200,7 @@ public sealed class AudioService
                     s_entityManager.AddComponentData(voiceEntity, new RealVoiceRequest(voiceEntity));
                 else
                 {
-                    Debug.LogWarning("You're trying to unmute " + audioOwner.gameObject.name + ", which is either not playing, not muted, or already trying to play."); //get rid of this when blending mode is implemented.
+                    Debug.LogWarning("You're trying to unmute " + audioUser.gameObject.name + ", which is either not playing, not muted, or already trying to play."); //get rid of this when blending mode is implemented.
                     continue;
                 }
             }

@@ -8,27 +8,27 @@ public class PerformMusic : MonoBehaviour
     bool _performing;
     bool _muted;
 
-    AudioOwner _audioOwner;
+    AudioUser _audioUser;
 
     void Awake()
     {
-        _audioOwner = GetComponent<AudioOwner>();
-        _audioOwner.OnAudioPlayed += IsPerforming;
-        _audioOwner.OnAudioStopped += IsNotPerforming;
-        _audioOwner.OnAudioStopped += IsNotMuted;
-        _audioOwner.OnAudioMuted += IsMuted;
-        _audioOwner.OnAudioUnmuted += IsNotMuted;
+        _audioUser = GetComponent<AudioUser>();
+        _audioUser.OnAudioPlayed += IsPerforming;
+        _audioUser.OnAudioStopped += IsNotPerforming;
+        _audioUser.OnAudioStopped += IsNotMuted;
+        _audioUser.OnAudioMuted += IsMuted;
+        _audioUser.OnAudioUnmuted += IsNotMuted;
     }
 
     void Start()
     {
-        _audioOwner.Play();
+        _audioUser.Play();
     }
 
     void OnDisable()
     {
-        _audioOwner.OnAudioPlayed -= IsPerforming;
-        _audioOwner.OnAudioStopped -= IsNotPerforming;
+        _audioUser.OnAudioPlayed -= IsPerforming;
+        _audioUser.OnAudioStopped -= IsNotPerforming;
     }
 
     void Update()
@@ -36,17 +36,17 @@ public class PerformMusic : MonoBehaviour
         if (Input.GetKeyDown(_playAndStopKeyCode))
         {
             if (_performing)
-                _audioOwner.Stop();
+                _audioUser.Stop();
             else
-                _audioOwner.Play();
+                _audioUser.Play();
         }
 
         if (Input.GetKeyDown(_muteAndUnmuteKeyCode))
         {
             if (_muted)
-                _audioOwner.Unmute();
+                _audioUser.Unmute();
             else
-                _audioOwner.Mute();
+                _audioUser.Mute();
         }
     }
 
