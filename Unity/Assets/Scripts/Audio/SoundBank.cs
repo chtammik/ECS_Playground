@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-[CreateAssetMenu(fileName = "AudioClipList")]
-public class AudioClipList : ScriptableObject
+[CreateAssetMenu(fileName = "SoundBank")]
+public class SoundBank : ScriptableObject
 {
     [SerializeField] AudioClip[] _clips;
     public AudioClip[] Clips { get { return _clips; } }

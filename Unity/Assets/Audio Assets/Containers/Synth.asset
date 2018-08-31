@@ -14,11 +14,11 @@ MonoBehaviour:
   _instanceLimit: 1
   _audioElements:
   - _audioAssets: {fileID: 11400000, guid: 8b208b911452fe94b9111111f2a9877e, type: 2}
-    _spatialBlend: 0
+    _spatialBlend: 1
     _loop: 0
   - _audioAssets: {fileID: 11400000, guid: d50fed123369d124fb101904c95c381d, type: 2}
-    _spatialBlend: 0
+    _spatialBlend: 1
     _loop: 0
   - _audioAssets: {fileID: 11400000, guid: 8061a1b33a456b145806391a65098d8c, type: 2}
-    _spatialBlend: 0
+    _spatialBlend: 1
     _loop: 0

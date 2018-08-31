@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c5b20a0a80d6134ab00ecbdacbcdd61, type: 3}
-  m_Name: AudioClipList
+  m_Name: SoundBank1
   m_EditorClassIdentifier: 
   _clips:
   - {fileID: 8300000, guid: 72b7c1dbc938fff4db5a74d8666e761a, type: 3}

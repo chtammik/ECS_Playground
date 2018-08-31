@@ -11,4 +11,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 711576ab331137e46a11c16087f846f2, type: 3}
   m_Name: Synth Lead
   m_EditorClassIdentifier: 
-  _clipID: 4
+  _audioClip: {fileID: 8300000, guid: ed9ecde78da4255449b36ce6ead921ee, type: 3}
+  _soundBank: {fileID: 11400000, guid: 259b337c603b21c4a9af8d98b5b2a5af, type: 2}

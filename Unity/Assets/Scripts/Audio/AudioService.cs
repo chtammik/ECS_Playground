@@ -7,13 +7,13 @@ using Unity.Transforms;
 public sealed class AudioService
 {
     static int s_counter;
-    static AudioClipList s_clipList;
+    static SoundBank s_soundBank;
     static EntityManager s_entityManager;
     static HashSet<AudioContainer> s_audioContainers = new HashSet<AudioContainer>();
 
-    public static void Initialize(AudioClipList audioClipList, EntityManager entityManager)
+    public static void Initialize(SoundBank soundBank, EntityManager entityManager)
     {
-        s_clipList = audioClipList;
+        s_soundBank = soundBank;
         s_entityManager = entityManager;
         foreach (AudioContainer audioContainer in s_audioContainers)
             audioContainer.CreateInstanceEntites(s_entityManager);
@@ -50,8 +50,8 @@ public sealed class AudioService
         audioSource.rolloffMode = AudioRolloffMode.Linear;
     }
 
-    public static AudioClip GetAudioClip(int index) { return s_clipList.Clips[index]; }
-    public static float GetClipLength(int index) { return s_clipList.Lengths[index]; }
+    public static AudioClip GetAudioClip(int index) { return s_soundBank.Clips[index]; }
+    public static float GetClipLength(int index) { return s_soundBank.Lengths[index]; }
 
     public static Entity Play(AudioUser audioUser)
     {

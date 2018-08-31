@@ -872,6 +872,7 @@ GameObject:
   - component: {fileID: 1124403288}
   - component: {fileID: 1124403287}
   - component: {fileID: 1124403286}
+  - component: {fileID: 1124403290}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -942,6 +943,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1124403290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1124403285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fc687cca47eab24fb16145871f174bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ClampInDegrees: {x: 360, y: 180}
+  LockCursor: 1
+  Sensitivity: {x: 2, y: 2}
+  Smoothing: {x: 3, y: 3}
+  TargetDirection: {x: 0, y: 0}
+  TargetCharacterDirection: {x: 0, y: 0}
+  characterBody: {fileID: 0}
 --- !u!4 &1154584178 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4702763864090682, guid: bf80ad0fa070a2146b4c30ad54f9b7a3,
@@ -1367,7 +1386,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _poolSize: 15
-  _clipList: {fileID: 11400000, guid: 259b337c603b21c4a9af8d98b5b2a5af, type: 2}
+  _soundBank: {fileID: 11400000, guid: 259b337c603b21c4a9af8d98b5b2a5af, type: 2}
 --- !u!4 &1854569797 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4702763864090682, guid: bf80ad0fa070a2146b4c30ad54f9b7a3,

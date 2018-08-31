@@ -14,5 +14,5 @@ MonoBehaviour:
   _instanceLimit: 2
   _audioElements:
   - _audioAssets: {fileID: 11400000, guid: a24a2b96f34fa164fa37f7f3fee74684, type: 2}
-    _spatialBlend: 0
+    _spatialBlend: 1
     _loop: 0

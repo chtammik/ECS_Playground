@@ -27,7 +27,7 @@ public class AudioUser : MonoBehaviour
     /// </summary>
     public event PlaybackMessage OnAudioUnmuted;
 
-    public int GetClipID(int index) { return AudioContainer.GetAudioElements[index].GetAudioAsset.GetClipID; }
+    public int GetClipID(int index) { return AudioContainer.GetAudioElements[index].GetAudioAsset.ClipID; }
     public float GetSpatialBlend(int index) { return AudioContainer.GetAudioElements[index].GetSpatialBlend; }
     public bool GetLoop(int index) { return AudioContainer.GetAudioElements[index].GetLoop; }
 

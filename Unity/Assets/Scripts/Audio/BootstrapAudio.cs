@@ -5,7 +5,7 @@ using UnityEngine;
 public class BootstrapAudio : MonoBehaviour
 {
     [SerializeField] int _poolSize;
-    [SerializeField] AudioClipList _clipList;
+    [SerializeField] SoundBank _soundBank;
     
     static EntityManager s_entityManager;
     //static World s_audioWorld;
@@ -46,8 +46,8 @@ public class BootstrapAudio : MonoBehaviour
 
     void Initialization_SoundBank() //TODO: make sound banks able to load and unload.
     {
-        if (_clipList == null)
-            _clipList = FindObjectOfType<AudioClipList>();
+        if (_soundBank == null)
+            Debug.LogError("No SoundBank defined in BootstapAudio");
         CreateAudioService();
     }
 
@@ -58,7 +58,7 @@ public class BootstrapAudio : MonoBehaviour
 
     void CreateAudioService()
     {
-        AudioService.Initialize(_clipList, s_entityManager);
+        AudioService.Initialize(_soundBank, s_entityManager);
         OnAudioServiceInitialized();
         OnAudioServiceInitialized = null; //clear all the subscribers because the AudioService initialization only happpens once.
         s_audioServiceInitialized = true;
